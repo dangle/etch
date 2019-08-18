@@ -38,9 +38,9 @@ class Knob:
         return self._channels
 
     def __call__(self, channel):
-        if channel = self._clk:
+        if channel == self._clk:
             self._clk_updated = True
-        if channel = self._dt:
+        if channel == self._dt:
             self._dt_updated = True
         if self._clk_updated and self._dt_updated:
             self._clk_updated = self._dt_updated = False
