@@ -7,8 +7,8 @@ def _DO_NOTHING():
 
 class Knob:
 
-    def __init__(self, clk, dt, sw=None, clockwise=_DO_NOTHING,
-                 counterclockwise=_DO_NOTHING, clicked=_DO_NOTHING):
+    def __init__(self, clk, dt, sw=None, clockwise=None, counterclockwise=None,
+                 clicked=None):
         if not any([clockwise, counterclockwise, clicked]):
             raise ValueError('At least one callback method must be supplied.')
         if not (clk and 0 < clk <= 27):
@@ -24,9 +24,9 @@ class Knob:
         self._clk = clk
         self._dt = dt
         self._sw = sw
-        self._clockwise = clockwise
-        self._counterclockwise = counterclockwise
-        self._clicked = clicked
+        self._clockwise = clockwise or _DO_NOTHING
+        self._counterclockwise = counterclockwise or _DO_NOTHING
+        self._clicked = clicked or _DO_NOTHING
         self._channels = [clk, dt]
 
     @property
