@@ -45,4 +45,4 @@ class Knob:
         if dt_state != clk_state:
             self._clockwise()
         else:
-            self:_counterclockwise()
+            self._counterclockwise()
