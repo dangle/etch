@@ -2,7 +2,7 @@ from time import sleep
 
 from RPi import GPIO
 
-from etch import inputs, knob
+from . import inputs, knob
 
 x = 0
 
