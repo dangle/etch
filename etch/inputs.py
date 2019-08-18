@@ -20,7 +20,8 @@ class Inputs:
         if GPIO.getmode() != GPIO.BCM:
             GPIO.setmode(GPIO.BCM)
         self._callbacks.append(callback)
-        GPIO.setup(callback.channels, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        pull = getattr(callback, 'pull', GPIO.PUD_UP)
+        GPIO.setup(callback.channels, GPIO.IN, pull_up_down=pull)
         detect = getattr(callback, 'detect', GPIO.BOTH)
         bounce = getattr(callback, 'bounce', 10)
         for channel in callback.channels:
