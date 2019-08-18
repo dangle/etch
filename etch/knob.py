@@ -1,5 +1,3 @@
-import time
-
 from RPi import GPIO
 
 
@@ -9,6 +7,7 @@ def _DO_NOTHING():
 
 class Knob:
     pull = GPIO.PUD_UP
+    bounce = 5
 
     def __init__(self, clk, dt, sw=None, clockwise=None, counterclockwise=None,
                  clicked=None):
@@ -47,7 +46,6 @@ class Knob:
         self._full_click = not self._full_click
         if not self._full_click:
             return
-        time.sleep(0.01)
         clk_state = GPIO.input(self._clk)
         dt_state = GPIO.input(self._dt)
         if dt_state != clk_state:
