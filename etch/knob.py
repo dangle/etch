@@ -28,8 +28,6 @@ class Knob:
                 raise ValueError(
                     'When sw pin is supplied, it must be between 0 and 27.')
             self._channels.append(sw)
-        self._prev_clk = 1
-        self._prev_dt = 1
 
     @property
     def channels(self):
@@ -42,29 +40,9 @@ class Knob:
             self._clicked()
 
     def _rotated(self):
-        clk = GPIO.input(self._clk)
-        dt = GPIO.input(self._dt)
-
-        if self._prev_clk == 0 and self._prev_dt == 1:
-            if clk == 1 and dt == 0:
-                self._clockwise()
-            if clk == 1 and dt == 1:
-                self._counterclockwise()
-
-        if self._prev_clk == 0 and self._prev_dt == 0:
-            if clk == 1 and dt == 0:
-                self._clockwise()
-            if clk == 1 and dt == 1:
-                self._counterclockwise()
-
-        if self._prev_clk == 1 and self._prev_dt == 0:
-            if clk == 0 and dt == 1:
-                self._clockwise()
-            if clk == 0 and dt == 0:
-                self._counterclockwise()
-
-        if self._prev_clk == 1 and self._prev_dt == 1:
-            if clk == 0 and dt == 1:
-                self._clockwise()
-            if clk == 0 and dt == 0:
-                self._counterclockwise()
+        clk_state = GPIO.input(self._clk)
+        dt_state = GPIO.input(self._dt)
+        if dt_state != clk_state:
+            self._clockwise()
+        else:
+            self._counterclockwise()
