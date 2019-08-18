@@ -28,6 +28,7 @@ class Knob:
         self._counterclockwise = counterclockwise or _DO_NOTHING
         self._clicked = clicked or _DO_NOTHING
         self._channels = [clk, dt]
+        self._full_rotate = True
 
     @property
     def channels(self):
@@ -40,6 +41,9 @@ class Knob:
             self._clicked()
 
     def _rotated(self):
+        self._full_rotate = !self._full_rotate
+        if not self._full_rotate:
+            return
         clk_state = GPIO.input(self._clk)
         dt_state = GPIO.input(self._dt)
         if dt_state != clk_state:
