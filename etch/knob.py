@@ -16,11 +16,6 @@ class Knob:
                 'clk pin must be supplied and be between 0 and 27.')
         if not (dt and 0 < dt <= 27):
             raise ValueError('dt pin must be supplied and be between 0 and 27.')
-        if sw:
-            if not 0 < sw <= 27:
-                raise ValueError(
-                    'When sw pin is supplied, it must be between 0 and 27.')
-            self._channels.append(sw)
         self._clk = clk
         self._dt = dt
         self._sw = sw
@@ -28,7 +23,13 @@ class Knob:
         self._counterclockwise = counterclockwise or _DO_NOTHING
         self._clicked = clicked or _DO_NOTHING
         self._channels = [clk, dt]
-        self._full_rotate = True
+        if sw:
+            if not 0 < sw <= 27:
+                raise ValueError(
+                    'When sw pin is supplied, it must be between 0 and 27.')
+            self._channels.append(sw)
+        self._prev_clk = GPIO.input(clk)
+        self._prev_dt = GPIO.input(dt)
 
     @property
     def channels(self):
@@ -41,12 +42,29 @@ class Knob:
             self._clicked()
 
     def _rotated(self):
-        self._full_rotate = not self._full_rotate
-        if not self._full_rotate:
-            return
-        clk_state = GPIO.input(self._clk)
-        dt_state = GPIO.input(self._dt)
-        if dt_state != clk_state:
-            self._clockwise()
-        else:
-            self._counterclockwise()
+        clk = GPIO.input(self._clk)
+        dt = GPIO.input(self._dt)
+
+        if self._prev_clk == 0 and self._prev_dt == 1:
+            if clk == 1 and dt == 0:
+                self._clockwise()
+            if clk == 1 and dt == 1:
+                self._counterclockwise()
+
+        if self._prev_clk == 0 and self._prev_dt == 0:
+            if clk == 1 and dt == 0:
+                self._clockwise()
+            if clk == 1 and dt == 1:
+                self._counterclockwise()
+
+        if self._prev_clk == 1 and self._prev_dt == 0:
+            if clk == 0 and dt == 1:
+                self._clockwise()
+            if clk == 0 and dt == 0:
+                self._counterclockwise()
+
+        if self._prev_clk == 1 and self._prev_dt == 1:
+            if clk == 0 and dt == 1:
+                self._clockwise()
+            if clk == 0 and dt == 0:
+                self._counterclockwise()
