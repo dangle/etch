@@ -11,13 +11,13 @@ class Knob:
                  counterclockwise=_DO_NOTHING, clicked=_DO_NOTHING):
         if not any([clockwise, counterclockwise, clicked]):
             raise ValueError('At least one callback method must be supplied.')
-        if not clk or clk < 0 or clk > 27:
+        if not (clk and 0 < clk <= 27):
             raise ValueError(
                 'clk pin must be supplied and be between 0 and 27.')
-        if not dt or dt < 0 or dt > 27:
+        if not (dt and 0 < dt <= 27):
             raise ValueError('dt pin must be supplied and be between 0 and 27.')
         if sw:
-            if sw < 0 or sw > 27:
+            if not 0 < sw <= 27:
                 raise ValueError(
                     'When sw pin is supplied, it must be between 0 and 27.')
             self._channels.append(sw)
