@@ -22,7 +22,7 @@ class Inputs:
         self._callbacks.append(callback)
         GPIO.setup(callback.channels, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         detect = getattr(callback, 'detect', GPIO.BOTH)
-        bounce = getattr(callback, 'bounce', 200)
+        bounce = getattr(callback, 'bounce', 10)
         for channel in callback.channels:
             GPIO.add_event_detect(
                 channel, detect, callback=callback, bouncetime=bounce)
