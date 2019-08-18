@@ -4,6 +4,7 @@ from RPi import GPIO
 class Inputs:
 
     def __init__(self):
+        GPIO.setmode(GPIO.BCM)
         self._callbacks = []
         self._paused = False
 
@@ -17,8 +18,6 @@ class Inputs:
     def register(self, callback):
         if not self._paused and callback in self._callbacks:
             return
-        if GPIO.getmode() != GPIO.BCM:
-            GPIO.setmode(GPIO.BCM)
         self._callbacks.append(callback)
         pull = getattr(callback, 'pull', GPIO.PUD_UP)
         GPIO.setup(callback.channels, GPIO.IN, pull_up_down=pull)
@@ -41,5 +40,6 @@ class Inputs:
         if not self._paused:
             return
         self._paused = False
+        GPIO.setmode(GPIO.BCM)
         for callback in callbacks:
             self.register(callback)
