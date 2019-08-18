@@ -1,3 +1,5 @@
+from time import sleep
+
 from RPi import GPIO
 
 
@@ -30,8 +32,6 @@ class Knob:
                     'When sw pin is supplied, it must be between 0 and 27.')
             self._channels.append(sw)
         self._full_click = True
-        self._clk_updated = False
-        self._dt_updated = False
 
     @property
     def channels(self):
@@ -39,11 +39,6 @@ class Knob:
 
     def __call__(self, channel):
         if channel == self._clk:
-            self._clk_updated = True
-        if channel == self._dt:
-            self._dt_updated = True
-        if self._clk_updated and self._dt_updated:
-            self._clk_updated = self._dt_updated = False
             self._rotated()
         elif channel == self._sw:
             self._clicked()
@@ -52,6 +47,7 @@ class Knob:
         self._full_click = not self._full_click
         if not self._full_click:
             return
+        time.sleep(0.01)
         clk_state = GPIO.input(self._clk)
         dt_state = GPIO.input(self._dt)
         if dt_state != clk_state:
