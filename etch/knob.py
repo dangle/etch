@@ -41,7 +41,7 @@ class Knob:
             self._clicked()
 
     def _rotated(self):
-        self._full_rotate = !self._full_rotate
+        self._full_rotate = not self._full_rotate
         if not self._full_rotate:
             return
         clk_state = GPIO.input(self._clk)
