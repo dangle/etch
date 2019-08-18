@@ -10,7 +10,7 @@ class Inputs:
     def __enter__(self):
         return self
 
-    def __exit__(self, _, _, _):
+    def __exit__(self, *_):
         GPIO.cleanup()
         self._callbacks = []
 
