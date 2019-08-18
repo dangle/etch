@@ -19,7 +19,7 @@ class Inputs:
         if not self._paused and callback in self._callbacks:
             return
         self._callbacks.append(callback)
-        pull = getattr(callback, 'pull', GPIO.PUD_UP)
+        pull = getattr(callback, 'pull', GPIO.PUD_OFF)
         GPIO.setup(callback.channels, GPIO.IN, pull_up_down=pull)
         detect = getattr(callback, 'detect', GPIO.BOTH)
         bounce = getattr(callback, 'bounce', 10)
