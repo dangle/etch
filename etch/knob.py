@@ -28,8 +28,8 @@ class Knob:
                 raise ValueError(
                     'When sw pin is supplied, it must be between 0 and 27.')
             self._channels.append(sw)
-        self._prev_clk = GPIO.input(clk)
-        self._prev_dt = GPIO.input(dt)
+        self._prev_clk = 1
+        self._prev_dt = 1
 
     @property
     def channels(self):
