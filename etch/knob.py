@@ -7,17 +7,18 @@ def _DO_NOTHING():
 
 class Knob:
     pull = GPIO.PUD_UP
-    bounce = 5
+    bounce = 10
 
-    def __init__(self, clk, dt, sw=None, clockwise=None, counterclockwise=None,
-                 clicked=None):
-        if not any([clockwise, counterclockwise, clicked]):
-            raise ValueError('At least one callback method must be supplied.')
+    def __init__(self, clk, dt, sw=None, min_value=None, max_value=None,
+                 clicked=None, default=0):
         if not (clk and 0 < clk <= 27):
             raise ValueError(
                 'clk pin must be supplied and be between 0 and 27.')
         if not (dt and 0 < dt <= 27):
             raise ValueError('dt pin must be supplied and be between 0 and 27.')
+        self._value = default
+        self._min = min_value
+        self._max = max_value
         self._clk = clk
         self._dt = dt
         self._sw = sw
@@ -31,6 +32,10 @@ class Knob:
                     'When sw pin is supplied, it must be between 0 and 27.')
             self._channels.append(sw)
         self._full_click = True
+
+    @property
+    def value(self):
+        return self._value
 
     @property
     def channels(self):
@@ -49,6 +54,8 @@ class Knob:
         clk_state = GPIO.input(self._clk)
         dt_state = GPIO.input(self._dt)
         if dt_state != clk_state:
-            self._clockwise()
+            if not self._max or self._max and self._value < self._max:
+                self._value = self._value + 1
         else:
-            self._counterclockwise()
+            if not self._min or self._min and self._value > self._min:
+                self._value = self._value - 1
