@@ -52,8 +52,8 @@ class Knob:
         clk_state = GPIO.input(self._clk)
         dt_state = GPIO.input(self._dt)
         if dt_state != clk_state:
-            if self._max is None or self._max and self._value < self._max:
+            if self._max is None or (self._max and self._value < self._max):
                 self._value = self._value + 1
         else:
-            if self._min is None or self._min and self._value > self._min:
+            if self._min is None or (self._min and self._value > self._min):
                 self._value = self._value - 1
