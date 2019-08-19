@@ -22,8 +22,6 @@ class Knob:
         self._clk = clk
         self._dt = dt
         self._sw = sw
-        self._clockwise = clockwise or _DO_NOTHING
-        self._counterclockwise = counterclockwise or _DO_NOTHING
         self._clicked = clicked or _DO_NOTHING
         self._channels = [clk, dt]
         if sw:
