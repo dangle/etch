@@ -7,17 +7,17 @@ from . import inputs, knob
 print('Listening for knob movements...')
 
 with inputs.Inputs() as i:
-    k1 = knob.Knob(17, 18)
-    i.register(k1)
-    old_k1 = k1.value
-    k2 = knob.Knob(7, 8)
-    i.register(k2)
-    old_k2 = k2.value
+    left = knob.Knob(17, 18, min=0, max=400)
+    i.register(left)
+    old_left = left.value
+    right = knob.Knob(7, 8, min=0, max=300)
+    i.register(right)
+    old_right = right.value
     while 1:
-        if k1.value != old_k1:
-            print(f'LEFT KNOB {k1.value}')
-            old_k1 = k1.value
-        if k2.value != old_k2:
-            print(f'RIGHT KNOB {k2.value}')
-            old_k2 = k2.value
+        if left.value != old_left:
+            print(f'LEFT KNOB {left.value}')
+            old_left = left.value
+        if right.value != old_right:
+            print(f'RIGHT KNOB {right.value}')
+            old_right = right.value
         sleep(0.01)
