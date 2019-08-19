@@ -9,7 +9,7 @@ class Knob:
     pull = GPIO.PUD_UP
     bounce = 10
 
-    def __init__(self, clk, dt, sw=None, min=None, max=None, clicked=None,
+    def __init__(self, clk, dt, sw=None, min_=None, max_=None, clicked=None,
                  default=0):
         if not (clk and 0 < clk <= 27):
             raise ValueError(
@@ -17,8 +17,8 @@ class Knob:
         if not (dt and 0 < dt <= 27):
             raise ValueError('dt pin must be supplied and be between 0 and 27.')
         self._value = default
-        self._min = min
-        self._max = max
+        self._min = min_
+        self._max = max_
         self._clk = clk
         self._dt = dt
         self._sw = sw
