@@ -1,4 +1,3 @@
-from collections import namedtuple
 from time import sleep
 
 from inky import InkyWHAT
@@ -8,7 +7,12 @@ from . import inputs, knob
 
 print('Listening for knob movements...')
 
-Cursor = namedtuple('Cursor', 'x y')
+class Cursor:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
 
 cursor = Cursor(0, 0)
 ink = InkyWHAT("black")
