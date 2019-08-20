@@ -21,11 +21,6 @@ ink.show()
 
 ink._luts['black'][39] = 0x00
 ink._luts['black'][44] = 0x00
-
-ink._luts['black'][45] = 0x02
-ink._luts['black'][46] = 0x04
-ink._luts['black'][47] = 0x04
-ink._luts['black'][48] = 0x05
 ink._luts['black'][49] = 0x01
 
 def set_pixel(x=None, y=None):
@@ -42,12 +37,12 @@ def set_pixel(x=None, y=None):
 dirty = False
 
 with inputs.Inputs() as i:
-    left = knob.Knob(19, 18, 12, min_=0, max_=399,
-                     changed=lambda v: set_pixel(x=v),
+    left = knob.Knob(19, 18, 12, min_=0, max_=199,
+                     changed=lambda v: set_pixel(x=v*2),
                      clicked=lambda: print('LEFT CLICK'))
     i.register(left)
-    right = knob.Knob(7, 16, 13, min_=0, max_=299,
-                      changed=lambda v: set_pixel(y=299 - v),
+    right = knob.Knob(7, 16, 13, min_=0, max_=149,
+                      changed=lambda v: set_pixel(y=299 - v*2),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
     while 1:
