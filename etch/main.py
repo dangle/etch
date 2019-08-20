@@ -23,9 +23,12 @@ ink._luts['black'][39] = 0x00
 ink._luts['black'][44] = 0x00
 ink._luts['black'][49] = 0x01
 
+dirty = False
+
 def set_pixel(x=None, y=None):
     global cursor
     global ink
+    global dirty
     if x is not None:
         cursor.x = x
     if y is not None:
@@ -33,8 +36,6 @@ def set_pixel(x=None, y=None):
     ink.set_pixel(cursor.x, cursor.y, 1)
     dirty = True
 
-
-dirty = False
 
 with inputs.Inputs() as i:
     left = knob.Knob(19, 18, 12, min_=0, max_=399,
