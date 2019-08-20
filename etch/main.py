@@ -16,6 +16,8 @@ class Cursor:
 
 cursor = Cursor(0, 0)
 ink = InkyWHAT("black")
+ink.set_border(ink.WHITE)
+ink.show()
 
 def set_pixel(x=None, y=None):
     global cursor
@@ -39,5 +41,6 @@ with inputs.Inputs() as i:
     old_cursor = cursor
     while 1:
         if old_cursor.x != cursor.x or old_cursor.y != old_cursor.y:
+            old_cursor = cursor
             ink.show()
         sleep(1)
