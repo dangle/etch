@@ -23,7 +23,7 @@ ink._luts['black'][35] = 0x04
 ink._luts['black'][36] = 0x08
 ink._luts['black'][37] = 0x08
 ink._luts['black'][38] = 0x10
-ink._luts['black'][39] = 0x01
+ink._luts['black'][39] = 0x10
 
 ink._luts['black'][40] = 0x00
 ink._luts['black'][41] = 0x00
