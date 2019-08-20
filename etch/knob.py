@@ -29,7 +29,6 @@ class Knob:
                 raise ValueError(
                     'When sw pin is supplied, it must be between 0 and 27.')
             self._channels.append(sw)
-        self._full_click = True
 
     @property
     def value(self):
@@ -46,9 +45,6 @@ class Knob:
             self._clicked()
 
     def _rotated(self):
-        self._full_click = not self._full_click
-        if not self._full_click:
-            return
         clk_state = GPIO.input(self._clk)
         dt_state = GPIO.input(self._dt)
         if dt_state != clk_state:
