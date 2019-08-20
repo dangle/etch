@@ -42,19 +42,19 @@ class Knob:
         return self._channels
 
     def __call__(self, channel):
-        if channel == self._clk:
+        if channel in (self._clk, self._dt):
             self._rotated(channel)
         elif channel == self._sw:
             self._clicked()
 
     def _rotated(self, channel):
+        level = GPIO.input(channel)
         if channel == self._clk:
-            self._clk_level = GPIO.input(self._clk)
+            self._clk_level = level
         else:
-            self._dt_level = GPIO.input(self._dt)
+            self._dt_level = level
         if channel == self._prev_channel:
             return
-        level = GPIO.input(channel)
         self._prev_channel = channel
         if channel == self._clk and level == 1:
             if self._dt_level == 1 and self._max is None or (
