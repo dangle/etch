@@ -35,7 +35,7 @@ with inputs.Inputs() as i:
                      clicked=lambda: print('LEFT CLICK'))
     i.register(left)
     right = knob.Knob(7, 16, 13, min_=0, max_=299,
-                     changed=lambda v: set_pixel(y=v),
+                     changed=lambda v: set_pixel(y=299 - v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
     while 1:
