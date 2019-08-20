@@ -38,9 +38,6 @@ with inputs.Inputs() as i:
                      changed=lambda v: set_pixel(y=v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
-    old_cursor = cursor
     while 1:
-        if old_cursor.x != cursor.x or old_cursor.y != old_cursor.y:
-            old_cursor = cursor
-            ink.show()
+        ink.show()
         sleep(1)
