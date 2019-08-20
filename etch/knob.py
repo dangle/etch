@@ -1,3 +1,5 @@
+import time
+
 from RPi import GPIO
 
 
@@ -49,6 +51,7 @@ class Knob:
         self._full_click = not self._full_click
         if not self._full_click:
             return
+        time.sleep(0.002)
         clk_state = GPIO.input(self._clk)
         dt_state = GPIO.input(self._dt)
         if dt_state != clk_state:
