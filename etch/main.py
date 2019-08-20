@@ -20,8 +20,8 @@ ink.set_border(ink.WHITE)
 ink.show()
 
 
-ink._luts['black'][39] = 0x01
-ink._luts['black'][44] = 0x01
+ink._luts['black'][39] = 0x00
+ink._luts['black'][44] = 0x00
 ink._luts['black'][49] = 0x01
 
 def set_pixel(x=None, y=None):
