@@ -5,7 +5,6 @@ from RPi import GPIO
 
 from . import inputs, knob
 
-print('Listening for knob movements...')
 
 class Cursor:
 
@@ -14,6 +13,7 @@ class Cursor:
         self.y = y
 
 
+print('Clearing the screen...')
 cursor = Cursor(0, 299)
 ink = InkyWHAT("black")
 ink.set_border(ink.WHITE)
@@ -33,6 +33,7 @@ def set_pixel(x=None, y=None):
     dirty = True
 
 
+print('Listening for knob movements...')
 with inputs.Inputs() as i:
     left = knob.Knob(19, 18, 12, min_=0, max_=399,
                      changed=lambda v: set_pixel(x=v),
