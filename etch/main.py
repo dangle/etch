@@ -50,3 +50,4 @@ with inputs.Inputs() as i:
             old_x = cursor.x
             old_y = cursor.y
             ink.show()
+        sleep(.01)
