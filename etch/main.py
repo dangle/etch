@@ -14,7 +14,7 @@ class Cursor:
         self.y = y
 
 
-cursor = Cursor(0, 0)
+cursor = Cursor(0, 299)
 ink = InkyWHAT("black")
 ink.set_border(ink.WHITE)
 ink.show()
@@ -35,7 +35,7 @@ with inputs.Inputs() as i:
                      clicked=lambda: print('LEFT CLICK'))
     i.register(left)
     right = knob.Knob(7, 16, 13, min_=0, max_=299,
-                     changed=lambda v: set_pixel(y=299 - v),
+                      changed=lambda v: set_pixel(y=299 - v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
     while 1:
