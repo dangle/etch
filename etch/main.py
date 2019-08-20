@@ -37,12 +37,12 @@ def set_pixel(x=None, y=None):
 dirty = False
 
 with inputs.Inputs() as i:
-    left = knob.Knob(19, 18, 12, min_=0, max_=199,
-                     changed=lambda v: set_pixel(x=v*2),
+    left = knob.Knob(19, 18, 12, min_=0, max_=399,
+                     changed=lambda v: set_pixel(x=v),
                      clicked=lambda: print('LEFT CLICK'))
     i.register(left)
-    right = knob.Knob(7, 16, 13, min_=0, max_=149,
-                      changed=lambda v: set_pixel(y=299 - v*2),
+    right = knob.Knob(7, 16, 13, min_=0, max_=299,
+                      changed=lambda v: set_pixel(y=299 - v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
     while 1:
