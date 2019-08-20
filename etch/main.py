@@ -19,9 +19,13 @@ ink = InkyWHAT("black")
 ink.set_border(ink.WHITE)
 ink.show()
 
-
 ink._luts['black'][39] = 0x00
 ink._luts['black'][44] = 0x00
+
+ink._luts['black'][45] = 0x02
+ink._luts['black'][46] = 0x04
+ink._luts['black'][47] = 0x04
+ink._luts['black'][48] = 0x05
 ink._luts['black'][49] = 0x01
 
 def set_pixel(x=None, y=None):
@@ -32,7 +36,10 @@ def set_pixel(x=None, y=None):
     if y is not None:
         cursor.y = y
     ink.set_pixel(cursor.x, cursor.y, 1)
+    dirty = True
 
+
+dirty = False
 
 with inputs.Inputs() as i:
     left = knob.Knob(19, 18, 12, min_=0, max_=399,
@@ -43,11 +50,8 @@ with inputs.Inputs() as i:
                       changed=lambda v: set_pixel(y=299 - v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
-    old_x = cursor.x
-    old_y = cursor.y
     while 1:
-        if old_x != cursor.x or old_y != cursor.y:
-            old_x = cursor.x
-            old_y = cursor.y
+        if dirty:
+            dirty = False
             ink.show()
         sleep(.01)
