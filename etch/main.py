@@ -28,16 +28,16 @@ def set_pixel(x=None, y=None):
 
 
 with inputs.Inputs() as i:
-    left = knob.Knob(19, 18, 12, min_=0, max_=400,
+    left = knob.Knob(19, 18, 12, min_=0, max_=399,
                      changed=lambda v: set_pixel(x=v),
                      clicked=lambda: print('LEFT CLICK'))
     i.register(left)
-    old_left = left.value
-    right = knob.Knob(7, 16, 13, min_=0, max_=300,
+    right = knob.Knob(7, 16, 13, min_=0, max_=299,
                      changed=lambda v: set_pixel(y=v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
-    old_right = right.value
+    old_cursor = cursor
     while 1:
-        ink.show()
+        if old_cursor.x != cursor.x or old_cursor.y != old_cursor.y:
+            ink.show()
         sleep(1)
