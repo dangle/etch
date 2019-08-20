@@ -19,6 +19,24 @@ ink = InkyWHAT("black")
 ink.set_border(ink.WHITE)
 ink.show()
 
+ink._luts['black'][35] = 0x04
+ink._luts['black'][36] = 0x08
+ink._luts['black'][37] = 0x08
+ink._luts['black'][38] = 0x10
+ink._luts['black'][39] = 0x01
+
+ink._luts['black'][40] = 0x00
+ink._luts['black'][41] = 0x00
+ink._luts['black'][42] = 0x00
+ink._luts['black'][43] = 0x00
+ink._luts['black'][44] = 0x00
+
+ink._luts['black'][45] = 0x00
+ink._luts['black'][46] = 0x00
+ink._luts['black'][47] = 0x00
+ink._luts['black'][48] = 0x00
+ink._luts['black'][49] = 0x00
+
 def set_pixel(x=None, y=None):
     global cursor
     global ink
