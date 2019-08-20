@@ -29,8 +29,6 @@ class Knob:
                 raise ValueError(
                     'When sw pin is supplied, it must be between 0 and 27.')
             self._channels.append(sw)
-        self._clk_triggered = False
-        self._dt_triggered = False
 
     @property
     def value(self):
@@ -42,16 +40,8 @@ class Knob:
 
     def __call__(self, channel):
         if channel == self._clk:
-            self._clk_triggered = True
-            if self._dt_triggered:
-                self._clk_triggered = self._dt_triggered = False
-                self._rotated()
-        elif channel == self._dt:
-            self._dt_triggered = True
-            if self._clk_triggered:
-                self._clk_triggered = self._dt_triggered = False
-                self._rotated()
-        else:
+            self._rotated()
+        elif channel == self._sw:
             self._clicked()
 
     def _rotated(self):
@@ -63,8 +53,7 @@ class Knob:
                 self._value = self._value + 1
                 self._changed(self._value)
 
-        else:
-            if self._min is None or (
-                    self._min is not None and self._value > self._min):
-                self._value = self._value - 1
-                self._changed(self._value)
+        elif self._min is None or (
+                self._min is not None and self._value > self._min):
+            self._value = self._value - 1
+            self._changed(self._value)
