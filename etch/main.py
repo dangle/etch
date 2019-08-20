@@ -27,7 +27,6 @@ def set_pixel(x=None, y=None):
     if y is not None:
         cursor.y = y
     ink.set_pixel(cursor.x, cursor.y, 1)
-    ink.show()
 
 
 with inputs.Inputs() as i:
@@ -39,5 +38,12 @@ with inputs.Inputs() as i:
                       changed=lambda v: set_pixel(y=299 - v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
+    old_x = cursor.x
+    old_y = cursor.y
     while 1:
-        sleep(1)
+        if old_x != cursor.x or old_y != cursor.y:
+            old_x = cursor.x
+            old_y = cursor.y
+            ink.show()
+            sleep(1)
+        sleep(.1)
