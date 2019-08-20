@@ -7,7 +7,8 @@ def _DO_NOTHING(*args):
 
 class Knob:
     pull = GPIO.PUD_UP
-    bounce = 10
+    bounce = 20
+    detect = GPIO.FALLING
 
     def __init__(self, clk, dt, sw=None, min_=None, max_=None, default=0, changed=None, clicked=None):
         if not (clk and 0 < clk <= 27):
