@@ -33,16 +33,16 @@ def set_pixel(x=None, y=None):
     ink.set_pixel(cursor.x, cursor.y, 1)
     dirty = True
 
-last_shake = 0
+last_shake = time()
 
 def clear_screen(channel):
     global ink
     global last_shake
-    if time.time() - last_shake > 3:
+    if time() - last_shake > 3:
         print('SHAKING!')
         ink.set_border(ink.WHITE)
         ink.show()
-        last_shake = time.time()
+        last_shake = time()
 
 
 clear_screen.channels = [2, 3, 26]
