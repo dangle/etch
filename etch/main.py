@@ -21,6 +21,7 @@ ink.show()
 
 dirty = False
 
+
 def set_pixel(x=None, y=None):
     global cursor
     global ink
@@ -33,17 +34,31 @@ def set_pixel(x=None, y=None):
     dirty = True
 
 
-print('Listening for knob movements...')
+def clear_screen():
+    global ink
+    ink.set_border(ink.WHITE)
+    ink.show()
+
+
+def check_int(channel):
+    print(f'INPUT {channel} has state: {GPIO.input(channel)}')
+
+
+check_int.channels = [2, 3, 26]
+
+#print('Listening for knob movements...')
 with inputs.Inputs() as i:
-    left = knob.Knob(19, 18, 12, min_=0, max_=399,
-                     changed=lambda v: set_pixel(x=v),
-                     clicked=lambda: print('LEFT CLICK'))
-    i.register(left)
-    right = knob.Knob(7, 16, 13, min_=0, max_=299,
-                      changed=lambda v: set_pixel(y=299 - v),
-                      clicked=lambda: print('RIGHT CLICK'))
-    i.register(right)
+    # left = knob.Knob(19, 18, 12, min_=0, max_=399,
+    #                  changed=lambda v: set_pixel(x=v),
+    #                  clicked=lambda: print('LEFT CLICK'))
+    # i.register(left)
+    # right = knob.Knob(7, 16, 13, min_=0, max_=299,
+    #                   changed=lambda v: set_pixel(y=299 - v),
+    #                   clicked=lambda: print('RIGHT CLICK'))
+    # i.register(right)
+    i.register(check_int)
     while 1:
-        if dirty:
-            dirty = False
-            ink.show()
+        sleep(0.1)
+        # if dirty:
+        #     dirty = False
+        #     ink.show()
