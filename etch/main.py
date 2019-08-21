@@ -33,13 +33,14 @@ def set_pixel(x=None, y=None):
     ink.set_pixel(cursor.x, cursor.y, 1)
     dirty = True
 
+
 last_shake = time()
+
 
 def clear_screen(channel):
     global ink
     global last_shake
-    if time() - last_shake > 3:
-        print('SHAKING!')
+    if time() - last_shake > 2:
         ink.set_border(ink.WHITE)
         ink.show()
         last_shake = time()
@@ -47,20 +48,18 @@ def clear_screen(channel):
 
 clear_screen.channels = [2, 3, 26]
 
-print('Waiting for shake!')
-#print('Listening for knob movements...')
+print('Listening for knob movements...')
 with inputs.Inputs() as i:
-    # left = knob.Knob(19, 18, 12, min_=0, max_=399,
-    #                  changed=lambda v: set_pixel(x=v),
-    #                  clicked=lambda: print('LEFT CLICK'))
-    # i.register(left)
-    # right = knob.Knob(7, 16, 13, min_=0, max_=299,
-    #                   changed=lambda v: set_pixel(y=299 - v),
-    #                   clicked=lambda: print('RIGHT CLICK'))
-    # i.register(right)
+    left = knob.Knob(19, 18, 12, min_=0, max_=399,
+                     changed=lambda v: set_pixel(x=v),
+                     clicked=lambda: print('LEFT CLICK'))
+    i.register(left)
+    right = knob.Knob(7, 16, 13, min_=0, max_=299,
+                      changed=lambda v: set_pixel(y=299 - v),
+                      clicked=lambda: print('RIGHT CLICK'))
+    i.register(right)
     i.register(clear_screen)
     while 1:
-        sleep(0.1)
-        # if dirty:
-        #     dirty = False
-        #     ink.show()
+        if dirty:
+            dirty = False
+            ink.show()
