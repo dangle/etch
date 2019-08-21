@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, time
 
 from inky import InkyWHAT
 from RPi import GPIO
