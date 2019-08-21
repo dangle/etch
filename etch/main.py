@@ -33,17 +33,15 @@ def set_pixel(x=None, y=None):
     ink.set_pixel(cursor.x, cursor.y, 1)
     dirty = True
 
+last_shake = 0
 
-def clear_screen():
+def clear_screen(channel):
     global ink
-    ink.set_border(ink.WHITE)
-    ink.show()
-
-
-def check_int(channel):
-    print(f'INPUT {channel} has state: {GPIO.input(channel)}')
-    print(f'INPUT 2 has state: {GPIO.input(2)}')
-    print(f'INPUT 3 has state: {GPIO.input(3)}')
+    global last_shake
+    if time.time() - last_shake > 3:
+        ink.set_border(ink.WHITE)
+        ink.show()
+        last_shake = time.time()
 
 
 check_int.channels = [2, 3, 26]
