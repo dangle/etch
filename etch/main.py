@@ -42,6 +42,8 @@ def clear_screen():
 
 def check_int(channel):
     print(f'INPUT {channel} has state: {GPIO.input(channel)}')
+    print(f'INPUT 2 has state: {GPIO.input(2)}')
+    print(f'INPUT 3 has state: {GPIO.input(3)}')
 
 
 check_int.channels = [2, 3, 26]
