@@ -19,7 +19,7 @@ class Knob:
         if sw:
             GPIO.setup(sw, GPIO.IN)
         GPIO.add_event_detect(
-            clk, GPIO.RISING, callback=lambda channel: self._rotated(channel),
+            clk, GPIO.RISING, callback=lambda channel: self._rotated(),
             bouncetime=2)
 
     @property
