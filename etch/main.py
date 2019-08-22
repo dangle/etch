@@ -44,17 +44,17 @@ def clear_screen(channel):
         ink.set_border(ink.WHITE)
         ink.show()
         last_shake = time()
+        dirty = False
 
 
 clear_screen.channels = [2, 3, 26]
 
 print('Listening for knob movements...')
 with inputs.Inputs() as i:
-    left = knob.Knob(19, 18, 12, min_=0, max_=399,
+    left = knob.Knob(19, 18, 12, 0, 399,
                      changed=lambda v: set_pixel(x=v),
                      clicked=lambda: print('LEFT CLICK'))
-    i.register(left)
-    right = knob.Knob(7, 16, 13, min_=0, max_=299,
+    right = knob.Knob(7, 16, 13, 0, 299,
                       changed=lambda v: set_pixel(y=299 - v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
