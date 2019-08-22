@@ -17,7 +17,7 @@ class Knob:
         GPIO.setup(clk, GPIO.IN)
         GPIO.setup(dt, GPIO.IN)
         if sw:
-            GPIO.setup(sw)
+            GPIO.setup(sw, GPIO.IN)
         GPIO.add_event_detect(clk, GPIO.RISING, callback=self._rotated,
                               bouncetime=2)
 
