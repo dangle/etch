@@ -17,8 +17,8 @@ class Knob:
         self._clk = clk
         self._dt = dt
         self._sw = sw
-        self._clicked = clicked
-        self._changed = changed
+        self._clicked = clicked or lambda v: None
+        self._changed = changed or lambda v: None
         GPIO.setup(clk, GPIO.IN, GPIO.PUD_UP)
         GPIO.setup(dt, GPIO.IN, GPIO.PUD_UP)
         if sw:
@@ -42,7 +42,6 @@ class Knob:
         return GPIO.input(self._dt)
 
     def _rotated(self):
-        time.sleep(0.002)
         if self.clk != self.dt:
             if self._max is None or (
                     self._max is not None and self._value < self._max):
