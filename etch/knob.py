@@ -48,7 +48,7 @@ class Knob:
                     self._max is not None and self._value < self._max):
                 self._value = self._value + 1
                 self._changed(self._value)
-        elif:
+        else:
             if self._min is None or (
                     self._min is not None and self._value > self._min):
                 self._value = self._value - 1
