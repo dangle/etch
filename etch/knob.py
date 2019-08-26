@@ -17,8 +17,8 @@ class Knob:
         self._clk = clk
         self._dt = dt
         self._sw = sw
-        self._clicked = clicked or lambda v: None
-        self._changed = changed or lambda v: None
+        self._clicked = clicked or (lambda v: None)
+        self._changed = changed or (lambda v: None)
         GPIO.setup(clk, GPIO.IN, GPIO.PUD_UP)
         GPIO.setup(dt, GPIO.IN, GPIO.PUD_UP)
         if sw:
