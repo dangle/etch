@@ -42,7 +42,7 @@ class Knob:
         return GPIO.input(self._dt)
 
     def _rotated(self):
-        if self.clk != self.dt:
+        if self.clk == self.dt:
             if self._max is None or (
                     self._max is not None and self._value < self._max):
                 self._value = self._value + 1
