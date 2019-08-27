@@ -27,7 +27,8 @@ class Knob:
         if sw:
             GPIO.setup(sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
-                sw, GPIO.RISING, callback=self._clicked, bouncetime=10)
+                sw, GPIO.RISING, callback=lambda channel: self._clicked(),
+                bouncetime=10)
         self._prevNextCode = uint8(0)
         self._storage = uint16(0)
 
