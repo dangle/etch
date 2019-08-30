@@ -18,10 +18,10 @@ class Knob:
         self._setup_click()
 
     def _setup_rotate(self):
-        GPIO.setup(dt, GPIO.IN, GPIO.PUD_UP)
-        GPIO.setup(clk, GPIO.IN, GPIO.PUD_UP)
+        GPIO.setup(self._dt, GPIO.IN, GPIO.PUD_UP)
+        GPIO.setup(self._clk, GPIO.IN, GPIO.PUD_UP)
         GPIO.add_event_detect(
-            clk, GPIO.RISING, callback=lambda channel: self._rotated(),
+            self._clk, GPIO.RISING, callback=lambda channel: self._rotated(),
             bouncetime=10)
 
     def _setup_click(self):
