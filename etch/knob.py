@@ -1,14 +1,9 @@
 import time
 
-from ctypes import c_uint8 as uint8
-from ctypes import c_uint16 as uint16
-
 from RPi import GPIO
 
 
 class Knob:
-
-    ENCODING_TABLE = (0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0)
 
     def __init__(self, clk, dt, sw=None, min_=None, max_=None, default=0, changed=None, clicked=None):
         self._value = default
@@ -19,18 +14,22 @@ class Knob:
         self._sw = sw
         self._clicked = clicked or (lambda v: None)
         self._changed = changed or (lambda v: None)
+        self._setup_rotate()
+        self._setup_click()
+
+    def _setup_rotate(self):
         GPIO.setup(dt, GPIO.IN, GPIO.PUD_UP)
         GPIO.setup(clk, GPIO.IN, GPIO.PUD_UP)
         GPIO.add_event_detect(
             clk, GPIO.RISING, callback=lambda channel: self._rotated(),
             bouncetime=10)
+
+    def _setup_click(self):
         if sw:
             GPIO.setup(sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
                 sw, GPIO.RISING, callback=lambda channel: self._clicked(),
                 bouncetime=10)
-        self._prevNextCode = uint8(0)
-        self._storage = uint16(0)
 
     @property
     def value(self):
