@@ -25,10 +25,10 @@ class Knob:
             bouncetime=10)
 
     def _setup_click(self):
-        if sw:
-            GPIO.setup(sw, GPIO.IN, GPIO.PUD_UP)
+        if self._sw:
+            GPIO.setup(self._sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
-                sw, GPIO.RISING, callback=lambda channel: self._clicked(),
+                self._sw, GPIO.RISING, callback=lambda channel: self._clicked(),
                 bouncetime=10)
 
     @property
