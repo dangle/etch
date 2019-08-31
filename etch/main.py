@@ -2,7 +2,7 @@ import time
 
 from RPi import GPIO
 
-from . import knob
+from . import accelerometer, knob
 
 GPIO.setmode(GPIO.BCM)
 
@@ -15,6 +15,7 @@ try:
                       updated=lambda v: print(f'RIGHT {v}'),
                       pressed=lambda: print('RIGHT PRESSED'),
                       released=lambda: print('RIGHT RELEASED'))
+    accel = accelerometer.Accelerometer(27)
     while 1:
         if left.is_long_pressed and right.is_long_pressed:
             print('Exiting...')
