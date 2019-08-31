@@ -41,7 +41,7 @@ class Sensor:
 
     @property
     def acceleration(self):
-        return self._raw_acceleration - self._GRAVITY - self._offset
+        return abs(self._raw_acceleration - self._GRAVITY - self._offset)
 
     @property
     def _raw_acceleration(self):
