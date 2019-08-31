@@ -51,10 +51,10 @@ clear_screen.channels = [2, 3, 26]
 
 print('Listening for knob movements...')
 with inputs.Inputs() as i:
-    left = knob.Knob(19, 18, 12, 0, 399,
+    left = knob.Knob(17, 6, 13, 0, 399,
                      changed=lambda v: set_pixel(x=v),
                      clicked=lambda: print('LEFT CLICK'))
-    right = knob.Knob(7, 16, 13, 0, 299,
+    right = knob.Knob(16, 5, 12, 0, 299,
                       changed=lambda v: set_pixel(y=299 - v),
                       clicked=lambda: print('RIGHT CLICK'))
     i.register(right)
