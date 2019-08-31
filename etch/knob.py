@@ -3,38 +3,54 @@ from datetime import datetime, timedelta
 from RPi import GPIO
 
 
+_NOT_SUPPLIED = object()
+_DO_NOTHING = lambda *args: None
+
+
 class Knob:
 
     def __init__(self, clk, dt, sw=None, min_=None, max_=None, default=0,
                  updated=None, pressed=None, released=None):
-        self._value = default
-        self._min = min_
-        self._max = max_
+        self._setup_rotate(clk, dt)
+        self._setup_click(dt)
+        self.configure(default, min_, max_, updated or _DO_NOTHING,
+                       pressed or _DO_NOTHING, released or _DO_NOTHING)
+
+    def configure(self, value=_NOT_SUPPLIED, min_=_NOT_SUPPLIED,
+                  max_=_NOT_SUPPLIED, updated=_NOT_SUPPLIED,
+                  pressed=_NOT_SUPPLIED, released=_NOT_SUPPLIED):
+        if value is not _NOT_SUPPLIED:
+            self._value = value
+        if min_ is not _NOT_SUPPLIED:
+            self._min = _min
+        if max_ is not _NOT_SUPPLIED:
+            self._max = _NOT_SUPPLIED
+        if updated is not _NOT_SUPPLIED:
+            self._updated = updated
+        if pressed is not _NOT_SUPPLIED:
+            self._pressed = pressed
+        if released is not _NOT_SUPPLIED:
+            self._released = released
+
+    def _setup_rotate(self, clk, dt):
         self._clk = clk
         self._dt = dt
-        self._sw = sw
-        self._updated = updated or (lambda v: None)
-        self._pressed = pressed or (lambda: None)
-        self._released = released or (lambda: None)
-        self._is_pressed = False
-        self._last_released = datetime(1, 1, 1)
-        self._setup_rotate()
-        self._setup_click()
-
-    def _setup_rotate(self):
-        GPIO.setup(self._dt, GPIO.IN, GPIO.PUD_UP)
-        GPIO.setup(self._clk, GPIO.IN, GPIO.PUD_UP)
+        GPIO.setup(dt, GPIO.IN, GPIO.PUD_UP)
+        GPIO.setup(clk, GPIO.IN, GPIO.PUD_UP)
         GPIO.add_event_detect(
-            self._clk, GPIO.RISING, callback=lambda channel: self._rotated(),
+            clk, GPIO.RISING, callback=lambda channel: self._rotated(),
             bouncetime=10)
 
-    def _setup_click(self):
-        if self._sw:
+    def _setup_click(self, sw):
+        self._sw = sw
+        self._is_pressed = False
+        self._last_released = datetime(1, 1, 1)
+        if _sw:
             GPIO.setup(self._sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
-                self._sw, GPIO.BOTH, callback=lambda channel: self._clicked())
+                _sw, GPIO.BOTH, callback=lambda channel: self._click())
 
-    def _clicked(self):
+    def _click(self):
         now = datetime.now()
         if self._sw:
             if GPIO.input(self._sw) == 0 and not self._is_pressed and (
