@@ -17,7 +17,7 @@ class Sensor:
 
     @property
     def is_shaking(self):
-        return self._shaking
+        return self._is_shaking
 
     @property
     def temp(self):
