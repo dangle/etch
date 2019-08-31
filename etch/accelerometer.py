@@ -26,7 +26,7 @@ class Accelerometer:
 
     @property
     def gyro(self):
-        data = self._sensor.get_gryo_data()
+        data = self._sensor.get_gyro_data()
         return (data['x'], data['y'], data['z'])
 
     def _updated(self):
