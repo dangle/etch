@@ -16,9 +16,9 @@ class Accelerometer:
         self._bus.write_quick(self._I2C_ADDRESS)
 
     def _setup_interrupt(self, int_):
-        GPIO.setup(int_, GPIO.IN, GPIO.PUD_UP)
+        GPIO.setup(int_, GPIO.IN)
         GPIO.add_event_detect(
-            int_, GPIO.RISING, callback=lambda channel: self._updated())
+            int_, GPIO.BOTH, callback=lambda channel: self._updated())
 
     def _updated(self):
         print('DATA ON ACCELEROMETER')
