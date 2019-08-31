@@ -13,7 +13,7 @@ class Sensor:
         self._shaking = shaking or (lambda: None)
         self._sensor = mpu6050(0x68)
         self._is_shaking = False
-        threading.thread(target=self._update_shaking).start()
+        threading.Thread(target=self._update_shaking).start()
 
     @property
     def is_shaking(self):
