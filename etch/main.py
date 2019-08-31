@@ -15,10 +15,10 @@ try:
                       updated=lambda v: print(f'RIGHT {v}'),
                       pressed=lambda: print('RIGHT PRESSED'),
                       released=lambda: print('RIGHT RELEASED'))
-    sensor = sensors.Sensor()
+    sensor = sensors.Sensor(shaking=lambda: print('SHAKING'))
     while 1:
         print(f'Accel: {sensor.accel}')
-        print(f'STATIC LEFT: {left.value}')
+        print(f'Shaking: {sensor.is_shaking}')
         if left.is_long_pressed and right.is_long_pressed:
             print('Exiting...')
             break
