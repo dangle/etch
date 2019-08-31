@@ -14,7 +14,7 @@ try:
                     )
     right = knob.Knob(16, 5, 12, 0, 299,
                       updated=lambda v: print(f'RIGHT {v}'),
-                      pressed=lambda: print('RIGHT PRESSED').
+                      pressed=lambda: print('RIGHT PRESSED'),
                       released=lambda: print('RIGHT RELEASED')
                     )
     while 1:
