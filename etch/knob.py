@@ -10,7 +10,7 @@ _DO_NOTHING = lambda *args: None
 class Knob:
 
     def __init__(self, clk, dt, sw=None, min_=None, max_=None, default=0,
-                 on_update=None, on_press=None, released=None):
+                 on_update=None, on_press=None, on_release=None):
         self._setup_rotate(clk, dt)
         self._setup_click(sw)
         self.configure(default, min_, max_, on_update or _DO_NOTHING,
