@@ -44,7 +44,7 @@ class Knob:
     def _setup_click(self, sw):
         self._sw = sw
         self._is_pressed = False
-        self._last_released = datetime(1, 1, 1)
+        self._last_released = None
         if sw:
             GPIO.setup(self._sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
@@ -54,6 +54,7 @@ class Knob:
         now = datetime.now()
         if self._sw:
             if GPIO.input(self._sw) == 0 and not self._is_pressed and (
+                    not self._last_released or
                     self._last_released + timedelta(microseconds=30000) < now):
                 self._pressed()
                 self._is_pressed = True
@@ -69,7 +70,7 @@ class Knob:
 
     @property
     def is_long_pressed(self):
-        return self._sw and self.pushed_duration.seconds > 1
+        return self._sw and self.pushed_duration.seconds > 3
 
     @property
     def pushed_duration(self):
