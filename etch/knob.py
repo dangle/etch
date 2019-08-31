@@ -38,7 +38,7 @@ class Knob:
         now = datetime.now()
         if self._sw:
             if GPIO.input(self._sw) == 0 and not self._is_pressed and (
-                    self._last_released + timedelta(microseconds=10000) < now):
+                    self._last_released + timedelta(microseconds=5000) < now):
                 self._pressed()
                 self._is_pressed = True
             elif GPIO.input(self._sw) != 0 and self._is_pressed:
