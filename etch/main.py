@@ -17,10 +17,12 @@ try:
                       released=lambda: print('RIGHT RELEASED'))
     accel = accelerometer.Accelerometer(27)
     while 1:
+        print(f'Temp: {accel.temperature}')
+        print(f'Accel: {accel.accelerometer}')
+        print(f'Gyro: {accel.gyro}')
         if left.is_long_pressed and right.is_long_pressed:
-            print(f'Temp: {accel.temperature}')
-            print(f'Accel: {accel.accelerometer}')
-            print(f'Gyro: {accel.gyro}')
-        time.sleep(0.01)
+            print('Exiting...')
+            break
+        time.sleep(1)
 finally:
     GPIO.cleanup()
