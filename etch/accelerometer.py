@@ -4,14 +4,15 @@ from smbus import SMBus
 
 class Accelerometer:
 
-    _I2C_ADDRESS = 68
+    _I2C_BUS = 1
+    _I2C_ADDRESS = 0x68
 
     def __init__(self, int_):
         self._setup_i2c()
         self._setup_interrupt(int_)
 
     def _setup_i2c(self):
-        self._bus = SMBus(self._I2C_ADDRESS)
+        self._bus = SMBus(self._I2C_BUS)
 
     def _setup_interrupt(self, int_):
         GPIO.setup(int_, GPIO.IN, GPIO.PUD_UP)
