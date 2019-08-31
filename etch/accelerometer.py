@@ -11,7 +11,7 @@ class Accelerometer:
         self._setup_interrupt(int_)
 
     def _setup_i2c(self):
-        self._bus = SMBus(_I2C_ADDRESS)
+        self._bus = SMBus(self._I2C_ADDRESS)
 
     def _setup_interrupt(self, int_):
         GPIO.setup(int_, GPIO.IN, GPIO.PUD_UP)
