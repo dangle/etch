@@ -37,3 +37,5 @@ class Sensor:
         while 1:
             time.sleep(10)
             self._is_shaking = not self._is_shaking
+            if self._is_shaking:
+                self._shaking()
