@@ -1,4 +1,5 @@
 from collections import namedtuple
+from math import sqrt
 import time
 import threading
 
@@ -21,10 +22,6 @@ class Sensor:
         self._setup_shaking()
 
     @property
-    def is_shaking(self):
-        return self._is_shaking
-
-    @property
     def temperature(self):
         return self._sensor.get_temp()
 
@@ -40,10 +37,9 @@ class Sensor:
 
     @property
     def acceleration(self):
-        return self.accelerometer
+        return sqrt(sum(i ** 2 for i in self.accelerometer))
 
     def _setup_shaking(self):
-        self._is_shaking = False
         thread = threading.Thread(target=self._update_shaking)
         thread.daemon = True
         thread.start()
@@ -51,6 +47,5 @@ class Sensor:
     def _update_shaking(self):
         while 1:
             time.sleep(10)
-            self._is_shaking = not self._is_shaking
-            if self._is_shaking:
+            if 0:
                 self._on_shake()
