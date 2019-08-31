@@ -76,7 +76,7 @@ class Knob:
         if not self._sw:
             return None
         if not self.is_pressed:
-            return 0
+            return timedelta()
         return datetime.now() - self._last_released
 
     @property
