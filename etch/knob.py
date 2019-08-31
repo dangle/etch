@@ -14,8 +14,8 @@ class Knob:
         self._dt = dt
         self._sw = sw
         self._updated = updated or (lambda v: None)
-        self._pressed = pressed or (lambda v: None)
-        self._released = released or (lambda v: None)
+        self._pressed = pressed or (lambda: None)
+        self._released = released or (lambda: None)
         self._setup_rotate()
         self._setup_click()
 
