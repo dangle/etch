@@ -22,9 +22,9 @@ class Knob:
         if value is not _NOT_SUPPLIED:
             self._value = value
         if min_ is not _NOT_SUPPLIED:
-            self._min = _min
+            self._min = min_
         if max_ is not _NOT_SUPPLIED:
-            self._max = _NOT_SUPPLIED
+            self._max = max_
         if updated is not _NOT_SUPPLIED:
             self._updated = updated
         if pressed is not _NOT_SUPPLIED:
