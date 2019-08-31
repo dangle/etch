@@ -12,7 +12,7 @@ class Knob:
     def __init__(self, clk, dt, sw=None, min_=None, max_=None, default=0,
                  updated=None, pressed=None, released=None):
         self._setup_rotate(clk, dt)
-        self._setup_click(dt)
+        self._setup_click(sw)
         self.configure(default, min_, max_, updated or _DO_NOTHING,
                        pressed or _DO_NOTHING, released or _DO_NOTHING)
 
