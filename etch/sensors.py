@@ -22,7 +22,7 @@ class Sensor:
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
         self._offset = mean(self._raw_acceleration - self._GRAVITY
-                            for x in range(100))
+                            for x in range(10000))
         self._setup_shaking()
 
     @property
