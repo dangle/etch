@@ -2,9 +2,7 @@ from datetime import datetime, timedelta
 
 from RPi import GPIO
 
-
-_NOT_SUPPLIED = object()
-_DO_NOTHING = lambda *args: None
+from .common import DO_NOTHING, NOT_SUPPLIED
 
 
 class Knob:
@@ -13,23 +11,23 @@ class Knob:
                  on_update=None, on_press=None, on_release=None):
         self._setup_rotate(clk, dt)
         self._setup_click(sw)
-        self.configure(default, min_, max_, on_update or _DO_NOTHING,
-                       on_press or _DO_NOTHING, on_release or _DO_NOTHING)
+        self.configure(default, min_, max_, on_update or DO_NOTHING,
+                       on_press or DO_NOTHING, on_release or DO_NOTHING)
 
-    def configure(self, value=_NOT_SUPPLIED, min_=_NOT_SUPPLIED,
-                  max_=_NOT_SUPPLIED, on_update=_NOT_SUPPLIED,
-                  on_press=_NOT_SUPPLIED, on_release=_NOT_SUPPLIED):
-        if value is not _NOT_SUPPLIED:
+    def configure(self, value=NOT_SUPPLIED, min_=NOT_SUPPLIED,
+                  max_=NOT_SUPPLIED, on_update=NOT_SUPPLIED,
+                  on_press=NOT_SUPPLIED, on_release=NOT_SUPPLIED):
+        if value is not NOT_SUPPLIED:
             self._value = value
-        if min_ is not _NOT_SUPPLIED:
+        if min_ is not NOT_SUPPLIED:
             self._min = min_
-        if max_ is not _NOT_SUPPLIED:
+        if max_ is not NOT_SUPPLIED:
             self._max = max_
-        if on_update is not _NOT_SUPPLIED:
+        if on_update is not NOT_SUPPLIED:
             self._on_update = on_update
-        if on_press is not _NOT_SUPPLIED:
+        if on_press is not NOT_SUPPLIED:
             self._on_press = on_press
-        if on_release is not _NOT_SUPPLIED:
+        if on_release is not NOT_SUPPLIED:
             self._on_release = on_release
 
     @property

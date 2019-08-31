@@ -4,14 +4,16 @@ import threading
 from mpu6050 import mpu6050
 from RPi import GPIO
 
+from .common import DO_NOTHING
+
 
 class Sensor:
 
     _I2C_ADDRESS = 0x68
 
     def __init__(self, on_shake=None):
-        self._on_shake = on_shake or (lambda: None)
-        self._sensor = mpu6050(0x68)
+        self._on_shake = on_shake or DO_NOTHING
+        self._sensor = mpu6050(self._I2C_ADDRESS)
         self._setup_shaking()
 
     @property
