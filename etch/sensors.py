@@ -10,11 +10,11 @@ class Sensor:
         self._sensor = mpu6050(0x68)
 
     @property
-    def temperature(self):
+    def temp(self):
         return self._sensor.get_temp()
 
     @property
-    def accelerometer(self):
+    def accel(self):
         data = self._sensor.get_accel_data()
         return (data['x'], data['y'], data['z'])
 
