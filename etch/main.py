@@ -17,8 +17,6 @@ try:
                       released=lambda: print('RIGHT RELEASED'))
     sensor = sensors.Sensor(shaking=lambda: print('SHAKING'))
     while 1:
-        print(f'Accel: {sensor.accel}')
-        print(f'Shaking: {sensor.is_shaking}')
         if left.is_long_pressed and right.is_long_pressed:
             print('Exiting...')
             break
