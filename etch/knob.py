@@ -32,6 +32,24 @@ class Knob:
         if released is not _NOT_SUPPLIED:
             self._released = released
 
+    @property
+    def is_pressed(self):
+        return self._sw and self._is_pressed
+
+    @property
+    def is_long_pressed(self):
+        return self._sw and self.pushed_duration.seconds > 3
+
+    @property
+    def pushed_duration(self):
+        if not self.is_pressed or not self._last_pressed:
+            return timedelta()
+        return datetime.now() - self._last_pressed
+
+    @property
+    def value(self):
+        return self._value
+
     def _setup_rotate(self, clk, dt):
         self._clk = clk
         self._dt = dt
@@ -54,45 +72,20 @@ class Knob:
     def _click(self):
         now = datetime.now()
         if self._sw:
-            if GPIO.input(self._sw) == 0 and not self._is_pressed and (
+            sw_data = GPIO.input(self._sw)
+            if sw_data == 0 and not self._is_pressed and (
                     not self._last_released or
                     self._last_released + timedelta(microseconds=30000) < now):
                 self._pressed()
                 self._is_pressed = True
                 self._last_pressed = now
-            elif GPIO.input(self._sw) != 0 and self._is_pressed:
+            elif sw_data != 0 and self._is_pressed:
                 self._released()
                 self._is_pressed = False
                 self._last_released = now
 
-    @property
-    def is_pressed(self):
-        return self._sw and self._is_pressed
-
-    @property
-    def is_long_pressed(self):
-        return self._sw and self.pushed_duration.seconds > 3
-
-    @property
-    def pushed_duration(self):
-        if not self.is_pressed or not self._last_pressed:
-            return timedelta()
-        return datetime.now() - self._last_pressed
-
-    @property
-    def value(self):
-        return self._value
-
-    @property
-    def clk(self):
-        return GPIO.input(self._clk)
-
-    @property
-    def dt(self):
-        return GPIO.input(self._dt)
-
     def _rotated(self):
-        if self.clk == self.dt:
+        if GPIO.input(self._clk) == GPIO.input(self._dt):
             if self._max is None or (
                     self._max is not None and self._value < self._max):
                 self._value = self._value + 1

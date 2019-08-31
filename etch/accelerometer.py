@@ -11,9 +11,9 @@ class Accelerometer:
         self._setup_interrupt(int_)
 
     def _setup_interrupt(self, int_):
-        GPIO.setup(int_, GPIO.IN)
+        GPIO.setup(int_, GPIO.IN, GPIO.PUD_DOWN)
         GPIO.add_event_detect(
-            int_, GPIO.BOTH, callback=lambda channel: self._updated())
+            int_, GPIO.FALLING, callback=lambda channel: self._updated())
 
     @property
     def temperature(self):
