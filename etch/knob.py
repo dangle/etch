@@ -28,10 +28,7 @@ class Knob:
         if self._sw:
             GPIO.setup(self._sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
-                self._sw, GPIO.RISING, callback=lambda channel: self._clicked(),
-                bouncetime=20)
-            GPIO.add_event_detect(
-                self._sw, GPIO.FALLING, callback=lambda channel: self._clicked(),
+                self._sw, GPIO.BOTH, callback=lambda channel: self._clicked(),
                 bouncetime=20)
 
     @property
