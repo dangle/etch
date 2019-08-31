@@ -65,8 +65,7 @@ class Knob:
 
     @property
     def is_pressed(self):
-        if self._sw:
-            return self._is_pressed
+        return self._sw and self._is_pressed
 
     @property
     def is_long_pressed(self):
