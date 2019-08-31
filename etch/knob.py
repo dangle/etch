@@ -1,4 +1,4 @@
-import time
+from datetime import datetime, timedelta
 
 from RPi import GPIO
 
@@ -17,6 +17,7 @@ class Knob:
         self._pressed = pressed or (lambda: None)
         self._released = released or (lambda: None)
         self._is_pressed = False
+        self._last_released = datetime(1, 1, 1)
         self._setup_rotate()
         self._setup_click()
 
@@ -34,13 +35,16 @@ class Knob:
                 self._sw, GPIO.BOTH, callback=lambda channel: self._clicked())
 
     def _clicked(self):
+        now = datetime.now()
         if self._sw:
             if GPIO.input(self._sw) == 0 and not self._is_pressed:
                 self._pressed()
                 self._is_pressed = True
-            elif GPIO.input(self._sw) != 0 and self._is_pressed:
+            elif GPIO.input(self._sw) != 0 and self._is_pressed and (
+                    self._last_released + timedelta(microseconds=2) < now):
                 self._released()
                 self._is_pressed = False
+                self._last_released = now
 
     @property
     def value(self):
