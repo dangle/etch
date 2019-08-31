@@ -18,6 +18,9 @@ try:
                       released=lambda: print('RIGHT RELEASED')
                     )
     while 1:
+        if left.is_pressed and right.is_pressed:
+            print('Exiting...')
+            break
         time.sleep(0.01)
 finally:
     GPIO.cleanup()
