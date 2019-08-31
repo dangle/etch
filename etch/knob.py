@@ -32,7 +32,7 @@ class Knob:
             GPIO.setup(self._sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
                 self._sw, GPIO.BOTH, callback=lambda channel: self._clicked(),
-                bouncetime=1000)
+                bouncetime=2)
 
     def _clicked(self):
         if self._sw:
