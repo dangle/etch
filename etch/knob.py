@@ -10,27 +10,27 @@ _DO_NOTHING = lambda *args: None
 class Knob:
 
     def __init__(self, clk, dt, sw=None, min_=None, max_=None, default=0,
-                 updated=None, pressed=None, released=None):
+                 on_update=None, on_press=None, released=None):
         self._setup_rotate(clk, dt)
         self._setup_click(sw)
-        self.configure(default, min_, max_, updated or _DO_NOTHING,
-                       pressed or _DO_NOTHING, released or _DO_NOTHING)
+        self.configure(default, min_, max_, on_update or _DO_NOTHING,
+                       on_press or _DO_NOTHING, on_release or _DO_NOTHING)
 
     def configure(self, value=_NOT_SUPPLIED, min_=_NOT_SUPPLIED,
-                  max_=_NOT_SUPPLIED, updated=_NOT_SUPPLIED,
-                  pressed=_NOT_SUPPLIED, released=_NOT_SUPPLIED):
+                  max_=_NOT_SUPPLIED, on_update=_NOT_SUPPLIED,
+                  on_press=_NOT_SUPPLIED, on_release=_NOT_SUPPLIED):
         if value is not _NOT_SUPPLIED:
             self._value = value
         if min_ is not _NOT_SUPPLIED:
             self._min = min_
         if max_ is not _NOT_SUPPLIED:
             self._max = max_
-        if updated is not _NOT_SUPPLIED:
-            self._updated = updated
-        if pressed is not _NOT_SUPPLIED:
-            self._pressed = pressed
-        if released is not _NOT_SUPPLIED:
-            self._released = released
+        if on_update is not _NOT_SUPPLIED:
+            self._on_update = on_update
+        if on_press is not _NOT_SUPPLIED:
+            self._on_press = on_press
+        if on_release is not _NOT_SUPPLIED:
+            self._on_release = on_release
 
     @property
     def is_pressed(self):
@@ -76,11 +76,11 @@ class Knob:
             if sw_data == 0 and not self._is_pressed and (
                     not self._last_released or
                     self._last_released + timedelta(microseconds=30000) < now):
-                self._pressed()
+                self._on_press()
                 self._is_pressed = True
                 self._last_pressed = now
             elif sw_data != 0 and self._is_pressed:
-                self._released()
+                self._on_release()
                 self._is_pressed = False
                 self._last_released = now
 
@@ -89,9 +89,9 @@ class Knob:
             if self._max is None or (
                     self._max is not None and self._value < self._max):
                 self._value = self._value + 1
-                self._updated(self._value)
+                self._on_update(self._value)
         else:
             if self._min is None or (
                     self._min is not None and self._value > self._min):
                 self._value = self._value - 1
-                self._updated(self._value)
+                self._on_update(self._value)

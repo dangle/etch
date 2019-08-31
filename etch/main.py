@@ -8,14 +8,14 @@ GPIO.setmode(GPIO.BCM)
 
 try:
     left = knob.Knob(17, 6, 13, 0, 399,
-                     updated=lambda v: print(f'LEFT {v}'),
-                     pressed=lambda: print('LEFT PRESSED'),
-                     released=lambda: print('LEFT RELEASED'))
+                     on_update=lambda v: print(f'LEFT {v}'),
+                     on_press=lambda: print('LEFT PRESSED'),
+                     on_release=lambda: print('LEFT RELEASED'))
     right = knob.Knob(16, 5, 12, 0, 299,
-                      updated=lambda v: print(f'RIGHT {v}'),
-                      pressed=lambda: print('RIGHT PRESSED'),
-                      released=lambda: print('RIGHT RELEASED'))
-    sensor = sensors.Sensor(shaking=lambda: print('SHAKING'))
+                      on_update=lambda v: print(f'RIGHT {v}'),
+                      on_press=lambda: print('RIGHT PRESSED'),
+                      on_release=lambda: print('RIGHT RELEASED'))
+    sensor = sensors.Sensor(on_shake=lambda: print('SHAKING'))
     while 1:
         if left.is_long_pressed and right.is_long_pressed:
             print('Exiting...')

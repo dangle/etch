@@ -9,13 +9,10 @@ class Sensor:
 
     _I2C_ADDRESS = 0x68
 
-    def __init__(self, shaking=None):
-        self._shaking = shaking or (lambda: None)
+    def __init__(self, on_shake=None):
+        self._on_shake = on_shake or (lambda: None)
         self._sensor = mpu6050(0x68)
-        self._is_shaking = False
-        thread = threading.Thread(target=self._update_shaking)
-        thread.daemon = True
-        thread.start()
+        self._setup_shaking()
 
     @property
     def is_shaking(self):
@@ -35,9 +32,15 @@ class Sensor:
         data = self._sensor.get_gyro_data()
         return (data['x'], data['y'], data['z'])
 
+    def _setup_shaking(self):
+        self._is_shaking = False
+        thread = threading.Thread(target=self._update_shaking)
+        thread.daemon = True
+        thread.start()
+
     def _update_shaking(self):
         while 1:
             time.sleep(10)
             self._is_shaking = not self._is_shaking
             if self._is_shaking:
-                self._shaking()
+                self._on_shake()
