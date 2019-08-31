@@ -76,7 +76,7 @@ class Knob:
     def pushed_duration(self):
         if not self._sw:
             return None
-        if not self.is_pressed:
+        if not self.is_pressed or not self._last_released:
             return timedelta()
         return datetime.now() - self._last_released
 
