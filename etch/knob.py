@@ -45,10 +45,10 @@ class Knob:
         self._sw = sw
         self._is_pressed = False
         self._last_released = datetime(1, 1, 1)
-        if _sw:
+        if sw:
             GPIO.setup(self._sw, GPIO.IN, GPIO.PUD_UP)
             GPIO.add_event_detect(
-                _sw, GPIO.BOTH, callback=lambda channel: self._click())
+                sw, GPIO.BOTH, callback=lambda channel: self._click())
 
     def _click(self):
         now = datetime.now()
