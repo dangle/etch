@@ -34,10 +34,12 @@ class Knob:
                 bouncetime=20)
 
     def _clicked(self):
-        if self.sw:
-            self._pressed()
-        else:
-            self._released()
+        if self._sw:
+            print(self.sw)
+            if self.sw:
+                self._pressed()
+            else:
+                self._released()
 
     @property
     def value(self):
