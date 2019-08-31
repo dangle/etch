@@ -4,7 +4,7 @@ from smbus import SMBus
 
 class Accelerometer:
 
-    _I2C_ADDRESS = 0x68
+    _I2C_ADDRESS = 68
 
     def __init__(self, int_):
         self._setup_i2c()
