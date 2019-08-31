@@ -16,6 +16,7 @@ class Knob:
         self._updated = updated or (lambda v: None)
         self._pressed = pressed or (lambda: None)
         self._released = released or (lambda: None)
+        self._is_pressed = False
         self._setup_rotate()
         self._setup_click()
 
@@ -35,10 +36,12 @@ class Knob:
 
     def _clicked(self):
         if self._sw:
-            if GPIO.input(self._sw) == 0:
+            if GPIO.input(self._sw) == 0 and not self._is_pressed:
                 self._pressed()
-            else:
+                self._is_pressed = True
+            elif GPIO.input(self._sw) != 0 and self._is_pressed:
                 self._released()
+                self._is_pressed = False
 
     @property
     def value(self):
