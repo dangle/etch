@@ -69,7 +69,7 @@ class Knob:
 
     @property
     def is_long_pressed(self):
-        return self._sw and self.pushed_duration > 1
+        return self._sw and self.pushed_duration.seconds > 1
 
     @property
     def pushed_duration(self):
