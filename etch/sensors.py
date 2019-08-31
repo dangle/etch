@@ -15,7 +15,7 @@ Point = namedtuple('Point', 'x y z')
 class Sensor:
 
     _I2C_ADDRESS = 0x68
-    _GRAVITY = mpu6050.GRAVITY_MS2
+    _GRAVITY = mpu6050.GRAVITIY_MS2
 
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
