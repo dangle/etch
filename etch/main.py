@@ -21,5 +21,7 @@ try:
             print('Exiting...')
             break
         time.sleep(1)
+except KeyboardInterrupt:
+    print('Exiting...')
 finally:
     GPIO.cleanup()
