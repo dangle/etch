@@ -2,7 +2,7 @@ import time
 
 from RPi import GPIO
 
-from . import accelerometer, knob
+from . import sensors, knob
 
 GPIO.setmode(GPIO.BCM)
 
@@ -15,11 +15,9 @@ try:
                       updated=lambda v: print(f'RIGHT {v}'),
                       pressed=lambda: print('RIGHT PRESSED'),
                       released=lambda: print('RIGHT RELEASED'))
-    accel = accelerometer.Accelerometer(27)
+    sensor = sensors.Sensor()
     while 1:
-        print(f'Temp: {accel.temperature}')
-        print(f'Accel: {accel.accelerometer}')
-        print(f'Gyro: {accel.gyro}')
+        print(f'Accel: {sensor.accel}')
         if left.is_long_pressed and right.is_long_pressed:
             print('Exiting...')
             break
