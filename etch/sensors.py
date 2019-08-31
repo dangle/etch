@@ -21,8 +21,8 @@ class Sensor:
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
-        self._offset = mean(self._raw_acceleration -
-                            self._GRAVITY for x in range(100))
+        self._offset = mean(self._raw_acceleration - self._GRAVITY
+                            for x in range(100))
         self._setup_shaking()
 
     @property
