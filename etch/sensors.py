@@ -1,4 +1,4 @@
-from collections import NamedTuple
+from collections import namedtuple
 import time
 import threading
 
@@ -8,7 +8,7 @@ from RPi import GPIO
 from .common import DO_NOTHING
 
 
-Point = NamedTuple('Point', 'x y z')
+Point = namedtuple('Point', 'x y z')
 
 
 class Sensor:
