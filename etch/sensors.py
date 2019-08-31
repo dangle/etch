@@ -24,7 +24,8 @@ class Sensor:
         self._sensor = mpu6050(self._I2C_ADDRESS)
 
         samples = (self.accelerometer for _ in range(self._OFFSET_SAMPLES))
-        self._offsets = (mean(x), mean(y), mean(z) for x, y, z in zip(*samples))
+        self._offsets = ((mean(x), mean(y), mean(z))
+                         for x, y, z in zip(*samples))
 
         self._setup_shaking()
 
