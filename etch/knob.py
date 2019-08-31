@@ -36,7 +36,7 @@ class Knob:
 
     def _clicked(self):
         if self._sw:
-            self._is_pressed = !self._is_pressed
+            self._is_pressed = not self._is_pressed
             if self._is_pressed:
                 self._pressed()
             else:
