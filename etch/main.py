@@ -18,6 +18,7 @@ try:
     sensor = sensors.Sensor()
     while 1:
         print(f'Accel: {sensor.accel}')
+        print(f'STATIC LEFT: {left.value}')
         if left.is_long_pressed and right.is_long_pressed:
             print('Exiting...')
             break
