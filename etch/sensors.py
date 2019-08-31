@@ -15,6 +15,7 @@ Point = namedtuple('Point', 'x y z')
 class Sensor:
 
     _I2C_ADDRESS = 0x68
+    _GRAVITY = mpu6060.GRAVITY_MS2
 
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
@@ -37,7 +38,7 @@ class Sensor:
 
     @property
     def acceleration(self):
-        return sqrt(sum(i ** 2 for i in self.accelerometer))
+        return sqrt(sum(i ** 2 for i in self.accelerometer)) - self._GRAVITY
 
     def _setup_shaking(self):
         thread = threading.Thread(target=self._update_shaking)
