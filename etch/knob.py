@@ -47,6 +47,11 @@ class Knob:
                 self._last_released = now
 
     @property
+    def is_pressed(self):
+        if self._sw:
+            return self._is_pressed
+
+    @property
     def value(self):
         return self._value
 
