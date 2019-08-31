@@ -37,7 +37,7 @@ class Knob:
     def _clicked(self):
         if self._sw:
             self._is_pressed = not self._is_pressed
-            if self._is_pressed:
+            if GPIO.input(self._sw) == 1:
                 self._pressed()
             else:
                 self._released()
