@@ -21,11 +21,13 @@ class Accelerometer:
 
     @property
     def accelerometer(self):
-        return tuple(self._sensor.get_accel_data())
+        data = self._sensor.get_accel_data()
+        return (data['x'], data['y'], data['z'])
 
     @property
     def gyro(self):
-        return tuple(self._sensor.get_gyro_data())
+        data = self._sensor.get_gryo_data()
+        return (data['x'], data['y'], data['z'])
 
     def _updated(self):
         print('DATA ON ACCELEROMETER')
