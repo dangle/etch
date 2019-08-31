@@ -1,3 +1,4 @@
+from collections import NamedTuple
 import time
 import threading
 
@@ -5,6 +6,9 @@ from mpu6050 import mpu6050
 from RPi import GPIO
 
 from .common import DO_NOTHING
+
+
+Point = NamedTuple('Point', 'x y z')
 
 
 class Sensor:
@@ -21,18 +25,22 @@ class Sensor:
         return self._is_shaking
 
     @property
-    def temp(self):
+    def temperature(self):
         return self._sensor.get_temp()
 
     @property
-    def accel(self):
+    def accelerometer(self):
         data = self._sensor.get_accel_data()
-        return (data['x'], data['y'], data['z'])
+        return Point(**data)
 
     @property
-    def gyro(self):
+    def gyroscope(self):
         data = self._sensor.get_gyro_data()
-        return (data['x'], data['y'], data['z'])
+        return Point(**data)
+
+    @property
+    def acceleration(self):
+        return self.accelerometer
 
     def _setup_shaking(self):
         self._is_shaking = False
