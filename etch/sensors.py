@@ -22,10 +22,8 @@ class Sensor:
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
-        q = range(self._OFFSET_SAMPLES)
         self._offset = mean(self._calc_accel(x, y, z)
-                            for _ in q
-                            for x, y, z in [0,0,0])
+                            for x, y, z in self.accelerometer)
         self._setup_shaking()
 
     def configure(self, on_shake=NOT_SUPPLIED):
