@@ -22,12 +22,19 @@ class Sensor:
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
-
-        samples = (self.accelerometer for _ in range(self._OFFSET_SAMPLES))
-        self._offsets = ((mean(x), mean(y), mean(z))
-                         for x, y, z in zip(*samples))
-
+        self._calibrate()
         self._setup_shaking()
+
+    def _calibrate(self):
+        samples = (self.accelerometer for _ in range(self._OFFSET_SAMPLES))
+        xs = []
+        ys = []
+        zs = []
+        for x, y, z in samples:
+            xs.append(x)
+            ys.append(y)
+            zs.append(z)
+        self._offsets = mean(x), mean(y), mean(z)
 
     @property
     def temperature(self):
