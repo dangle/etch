@@ -16,15 +16,15 @@ Point = namedtuple('Point', 'x y z')
 class Sensor:
     _I2C_ADDRESS = 0x68
     _OFFSET_SAMPLES = 100
-    _SHAKE_THRESHOLD = 12
+    _SHAKE_THRESHOLD = 10
     _SHAKE_DELAY = 5
 
     def __init__(self, on_shake=None):
-        self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
         self._offset = mean(self._calc_accel(*self.accelerometer)
                             for _ in range(self._OFFSET_SAMPLES))
         self._setup_shaking()
+        self.configure(on_shake)
 
     def configure(self, on_shake=NOT_SUPPLIED):
         if on_shake is not NOT_SUPPLIED:
@@ -51,15 +51,18 @@ class Sensor:
         return abs(sqrt(sum(i ** 2 for i in args)))
 
     def _setup_shaking(self):
-        self._stop_event = threading.Event()
+        self._last_shake = None
         thread = threading.Thread(target=self._update_shaking)
         thread.daemon = True
         thread.start()
 
     def _update_shaking(self):
-        while not self._stop_event.is_set():
-            if self.acceleration > self._SHAKE_THRESHOLD:
+        while 1:
+            now = datetime.now()
+            if self.acceleration > self._SHAKE_THRESHOLD and (
+                    not self._last_shake or
+                    now > self._last_shake + timedelta(self._SHAKE_DELAY)):
+                self._last_shake = now
                 self._on_shake()
-                time.sleep(self._SHAKE_DELAY)
             else:
                 time.sleep(0.01)

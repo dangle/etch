@@ -18,6 +18,7 @@ try:
                  on_press=lambda: print('RIGHT PRESSED'),
                  on_release=lambda: print('RIGHT RELEASED'))
     sensor = Sensor(on_shake=lambda: print('SHAKING'))
+    print('Listening...')
     start = datetime.now()
     while 1:
         if datetime.now() > start + timedelta(seconds=30):
