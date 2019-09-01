@@ -23,7 +23,7 @@ class Sensor:
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
         d = self.accelerometer
-        raise RuntimeException(type(d))
+        raise Exception(type(d))
         self._offset = mean(self._calc_accel(x, y, z)
                             for _ in range(self._OFFSET_SAMPLES)
                             for x, y, z in d)
