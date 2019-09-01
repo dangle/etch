@@ -1,10 +1,8 @@
-from datetime import datetime, timedelta
-import time
-
 from RPi import GPIO
 
 from .knob import Knob
 from .sensors import Sensor
+
 
 GPIO.setmode(GPIO.BCM)
 
@@ -19,15 +17,11 @@ try:
                  on_release=lambda: print('RIGHT RELEASED'))
     sensor = Sensor(on_shake=lambda: print('SHAKING'))
     print('Listening...')
-    start = datetime.now()
     while 1:
-        if datetime.now() > start + timedelta(seconds=30):
-            sensor.configure(on_shake=lambda: print('BAKING'))
         if left.is_long_pressed and right.is_long_pressed:
             print('Exiting...')
             break
-        time.sleep(1)
-except KeyboardInterrupt:
+except (KeyboardInterrupt, SystemExit):
     print('Exiting...')
 finally:
     GPIO.cleanup()
