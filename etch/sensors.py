@@ -17,7 +17,7 @@ class Sensor:
     _I2C_ADDRESS = 0x68
     _GRAVITY = mpu6050.GRAVITIY_MS2
     _OFFSET_SAMPLES = 100
-    _SHAKE_THRESHOLD = 30
+    _SHAKE_THRESHOLD = 20
 
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
