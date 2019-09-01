@@ -38,13 +38,11 @@ class Sensor:
 
     @property
     def accelerometer(self):
-        data = self._sensor.get_accel_data()
-        return Point(**data)
+        return Point(**self._sensor.get_accel_data())
 
     @property
     def gyroscope(self):
-        data = self._sensor.get_gyro_data()
-        return Point(**data)
+        return Point(**self._sensor.get_gyro_data())
 
     @property
     def acceleration(self):
