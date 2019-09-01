@@ -60,7 +60,9 @@ class Sensor:
 
     def _update_shaking(self):
         while 1:
-            if self.acceleration > self._SHAKE_THRESHOLD:
+            a = self.acceleration
+            if a > self._SHAKE_THRESHOLD:
+                print(a)
                 self._on_shake()
                 time.sleep(5)
             else:
