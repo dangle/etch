@@ -22,19 +22,12 @@ class Sensor:
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
-        self._calibrate()
-        self._setup_shaking()
 
-    def _calibrate(self):
         samples = (self.accelerometer for _ in range(self._OFFSET_SAMPLES))
-        xs = []
-        ys = []
-        zs = []
-        for x, y, z in samples:
-            xs.append(x)
-            ys.append(y)
-            zs.append(z)
-        self._offsets = mean(xs), mean(ys), mean(zs)
+        self._offset = mean(self._raw_acceleration - self._GRAVITY
+                            for x in range(self._OFFSET_SAMPLES))
+
+        self._setup_shaking()
 
     @property
     def temperature(self):
@@ -52,9 +45,11 @@ class Sensor:
 
     @property
     def acceleration(self):
-        normalized_values = (v - offset for v, offset in
-                             zip(self.accelerometer, self._offsets))
-        return abs(sqrt(sum(i ** 2 for i in normalized_values)))
+        return abs(self._raw_acceleration - self._GRAVITY - self._offset)
+
+    @property
+    def _raw_acceleration(self):
+        return abs(sqrt(sum(i ** 2 for i in self.accelerometer)))
 
     def _setup_shaking(self):
         thread = threading.Thread(target=self._update_shaking)
