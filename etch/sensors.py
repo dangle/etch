@@ -17,7 +17,7 @@ class Sensor:
     _I2C_ADDRESS = 0x68
     _GRAVITY = mpu6050.GRAVITIY_MS2
     _OFFSET_SAMPLES = 100
-    _SHAKE_THRESHOLD = 2
+    _SHAKE_THRESHOLD = 4
 
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
@@ -60,8 +60,8 @@ class Sensor:
 
     def _update_shaking(self):
         while 1:
-            if self.acceleration > 2:
+            if self.acceleration > self._SHAKE_THRESHOLD:
                 self._on_shake()
-                time.sleep(10)
+                time.sleep(5)
             else:
                 time.sleep(0.01)
