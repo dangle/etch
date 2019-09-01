@@ -34,7 +34,7 @@ class Sensor:
             xs.append(x)
             ys.append(y)
             zs.append(z)
-        self._offsets = mean(x), mean(y), mean(z)
+        self._offsets = mean(xs), mean(ys), mean(zs)
 
     @property
     def temperature(self):
