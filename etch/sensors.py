@@ -7,7 +7,7 @@ import threading
 from mpu6050 import mpu6050
 from RPi import GPIO
 
-from .common import DO_NOTHING
+from .common import DO_NOTHING, NOT_SUPPLIED
 
 
 Point = namedtuple('Point', 'x y z')
@@ -23,13 +23,14 @@ class Sensor:
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
-
-        samples = (self.accelerometer for _ in range(self._OFFSET_SAMPLES))
-
         self._offset = mean(self._calc_accel(x, y, z) - self._GRAVITY
-                            for x, y, z in samples)
-
+                            for x, y, z in self.accelerometer
+                            for _ in range(self._OFFSET_SAMPLES))
         self._setup_shaking()
+
+    def configure(self, on_shake=NOT_SUPPLIED):
+        if on_shake is not NOT_SUPPLIED:
+            self._on_shake = on_shake or DO_NOTHING
 
     @property
     def temperature(self):
@@ -55,12 +56,13 @@ class Sensor:
         return abs(sqrt(sum(i ** 2 for i in args)))
 
     def _setup_shaking(self):
+        self._stop_event = threading.Event()
         thread = threading.Thread(target=self._update_shaking)
         thread.daemon = True
         thread.start()
 
     def _update_shaking(self):
-        while 1:
+        while not self._stop_event.is_set():
             if self.acceleration > self._SHAKE_THRESHOLD:
                 self._on_shake()
                 time.sleep(self._SHAKE_DELAY)
