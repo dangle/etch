@@ -24,8 +24,9 @@ class Sensor:
         self._sensor = mpu6050(self._I2C_ADDRESS)
 
         samples = (self.accelerometer for _ in range(self._OFFSET_SAMPLES))
-        self._offset = mean(self._raw_acceleration - self._GRAVITY
-                            for x in range(self._OFFSET_SAMPLES))
+
+        self._offset = mean(self._calc_accel(x, y, z) - self._GRAVITY
+                            for x, y, z in samples)
 
         self._setup_shaking()
 
@@ -45,11 +46,12 @@ class Sensor:
 
     @property
     def acceleration(self):
-        return abs(self._raw_acceleration - self._GRAVITY - self._offset)
+        data = self.accelerometer()
+        return abs(self._calc_accel(
+                   data.x, data.y, data.z) - self._GRAVITY - self._offset)
 
-    @property
-    def _raw_acceleration(self):
-        return abs(sqrt(sum(i ** 2 for i in self.accelerometer)))
+    def _calc_accel(self, *args):
+        return abs(sqrt(sum(i ** 2 for i in args)))
 
     def _setup_shaking(self):
         thread = threading.Thread(target=self._update_shaking)
