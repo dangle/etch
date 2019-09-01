@@ -62,7 +62,8 @@ class Sensor:
             now = datetime.now()
             if self.acceleration > self._SHAKE_THRESHOLD and (
                     not self._last_shake or
-                    now > self._last_shake + timedelta(self._SHAKE_DELAY)):
+                    now > self._last_shake + timedelta(
+                        seconds=self._SHAKE_DELAY)):
                 self._last_shake = now
                 self._on_shake()
             else:
