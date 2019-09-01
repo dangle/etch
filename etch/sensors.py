@@ -24,7 +24,7 @@ class Sensor:
         self._sensor = mpu6050(self._I2C_ADDRESS)
         vals = [self._calc_accel(x, y, z)
                             for _ in range(self._OFFSET_SAMPLES)
-                            for x, y, z in self.accelerometer]
+                            for (x, y, z) in self.accelerometer]
         self._offset = self._calc_accel(*self.accelerometer)
         # self._offset = mean(self._calc_accel(x, y, z)
         #                     for _ in range(self._OFFSET_SAMPLES)
