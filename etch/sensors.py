@@ -15,7 +15,6 @@ Point = namedtuple('Point', 'x y z')
 
 class Sensor:
     _I2C_ADDRESS = 0x68
-    _GRAVITY = mpu6050.GRAVITIY_MS2
     _OFFSET_SAMPLES = 100
     _SHAKE_THRESHOLD = 12
     _SHAKE_DELAY = 5
@@ -23,9 +22,10 @@ class Sensor:
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
         self._sensor = mpu6050(self._I2C_ADDRESS)
-        self._offset = mean(self._calc_accel(x, y, z) - self._GRAVITY
+        d = self.accelerometer
+        self._offset = mean(self._calc_accel(x, y, z)
                             for _ in range(self._OFFSET_SAMPLES)
-                            for x, y, z in self.accelerometer)
+                            for x, y, z in d)
         self._setup_shaking()
 
     def configure(self, on_shake=NOT_SUPPLIED):
@@ -47,8 +47,7 @@ class Sensor:
     @property
     def acceleration(self):
         data = self.accelerometer
-        return abs(self._calc_accel(
-                   data.x, data.y, data.z) - self._GRAVITY - self._offset)
+        return abs(self._calc_accel(data.x, data.y, data.z) - self._offset)
 
     def _calc_accel(self, *args):
         return abs(sqrt(sum(i ** 2 for i in args)))
