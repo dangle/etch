@@ -18,6 +18,7 @@ class Sensor:
     _GRAVITY = mpu6050.GRAVITIY_MS2
     _OFFSET_SAMPLES = 100
     _SHAKE_THRESHOLD = 12
+    _SHAKE_DELAY = 5
 
     def __init__(self, on_shake=None):
         self._on_shake = on_shake or DO_NOTHING
@@ -60,10 +61,8 @@ class Sensor:
 
     def _update_shaking(self):
         while 1:
-            a = self.acceleration
-            if a > self._SHAKE_THRESHOLD:
-                print(a)
+            if self.acceleration > self._SHAKE_THRESHOLD:
                 self._on_shake()
-                time.sleep(5)
+                time.sleep(self._SHAKE_DELAY)
             else:
                 time.sleep(0.01)
