@@ -1,4 +1,7 @@
+from ctypes import c_uint8
 from datetime import datetime, timedelta
+import threading
+import time
 
 from RPi import GPIO
 
@@ -9,10 +12,10 @@ class Knob:
 
     def __init__(self, clk, dt, sw=None, min_=None, max_=None, default=0,
                  on_update=None, on_press=None, on_release=None):
-        self._setup_rotate(clk, dt)
-        self._setup_click(sw)
         self.configure(default, min_, max_, on_update or DO_NOTHING,
                        on_press or DO_NOTHING, on_release or DO_NOTHING)
+        self._setup_rotate(clk, dt)
+        self._setup_click(sw)
 
     def configure(self, value=NOT_SUPPLIED, min_=NOT_SUPPLIED,
                   max_=NOT_SUPPLIED, on_update=NOT_SUPPLIED,
@@ -53,9 +56,23 @@ class Knob:
         self._dt = dt
         GPIO.setup(dt, GPIO.IN, GPIO.PUD_UP)
         GPIO.setup(clk, GPIO.IN, GPIO.PUD_UP)
-        GPIO.add_event_detect(
-            clk, GPIO.RISING, callback=lambda channel: self._rotated(),
-            bouncetime=10)
+        thread = threading.Thread(target=self._update_rotation)
+        thread.daemon = True
+        thread.start()
+
+    def _update_rotation(self):
+        last = 0
+        while 1:
+            x = False
+            v = GPIO.input(self._clk)
+            if v != last:
+                for _ in range(5):
+                    x = GPIO.input(self._clk) == v
+                if x:
+                    last = v
+                    if v:
+                        self._rotated()
+            time.sleep(0.01)
 
     def _setup_click(self, sw):
         self._sw = sw
