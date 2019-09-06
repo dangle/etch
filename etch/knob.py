@@ -72,7 +72,7 @@ class Knob:
         while 1:
             clk_state = GPIO.input(self._clk)
             dt_state = GPIO.input(self._dt)
-            if self._clk_last != clk_state:
+            if clk_last != clk_state:
                 self._rotated()
             clk_last = clk_state
             time.sleep(0.01)
