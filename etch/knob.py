@@ -61,20 +61,13 @@ class Knob:
         thread.start()
 
     def _update_rotation(self):
-        last = 1
+        history = c_uint8(0)
         while 1:
-            x = False
-            v = GPIO.input(self._clk)
-            if v != last:
-                for _ in range(5):
-                    x = GPIO.input(self._clk) == v
-                    if not x:
-                        break
-                if x:
-                    last = v
-                    if v:
-                        self._rotated()
             time.sleep(0.01)
+            history.value <<= 1
+            history.value |= GPIO.input(self._clk)
+            if history == 0x7F:
+                self._rotated()
 
     def _setup_click(self, sw):
         self._sw = sw
