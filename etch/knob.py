@@ -61,13 +61,15 @@ class Knob:
         thread.start()
 
     def _update_rotation(self):
-        last = 0
+        last = 1
         while 1:
             x = False
             v = GPIO.input(self._clk)
             if v != last:
                 for _ in range(5):
                     x = GPIO.input(self._clk) == v
+                    if not x:
+                        break
                 if x:
                     last = v
                     if v:
