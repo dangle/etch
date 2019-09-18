@@ -66,3 +66,10 @@ class Knob:
         else:
             self._last_count = current
             self._on_update(current)
+
+
+    def _click(self):
+        if self.is_pressed:
+            self._on_press()
+        else:
+            self._on_release()
