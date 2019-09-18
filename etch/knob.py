@@ -40,7 +40,7 @@ class Knob:
 
     @property
     def is_long_pressed(self):
-        return (self.is_pressed() and
+        return (self.is_pressed and
                 self._twist.since_last_pressed(False) > 3000)
 
     @property
