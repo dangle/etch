@@ -35,8 +35,11 @@ class Knob:
 
     @property
     def is_pressed(self):
-        time.sleep(0.1)
-        return self._twist.is_pressed()
+        try:
+            return self._twist.is_pressed()
+        except OSError:
+            time.sleep(0.1)
+            return self._twist.is_pressed()
 
     @property
     def is_long_pressed(self):
