@@ -49,11 +49,14 @@ class Knob:
 
     def _poll(self):
         while 1:
-            if self._twist.since_last_press(False) < 100:
-                self._click()
-            if self._twist.has_moved():
-                self._rotated()
-            time.sleep(0.1)
+            try:
+                since_last_press = self._twist.since_last_press(False)
+                if 0 < since_last_press < 100:
+                    self._click()
+                if self._twist.has_moved():
+                    self._rotated()
+            except OSError:
+                time.sleep(0.2)
 
     def _rotated(self):
         current = self._twist.count
