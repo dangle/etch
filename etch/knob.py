@@ -11,9 +11,9 @@ class Knob:
 
     def __init__(self, addr, max_=None, default=0, on_update=None,
                  on_press=None, on_release=None):
+        self._twist = qwiic_twist.QwiicTwist(addr)
         self.configure(default, max_ or sys.maxint, on_update or DO_NOTHING,
                        on_press or DO_NOTHING, on_release or DO_NOTHING)
-        self._twist = qwiic_twist.QwiicTwist(addr)
         thread = threading.Thread(target=self._poll)
         thread.daemon = True
         thread.start()
