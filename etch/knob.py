@@ -51,7 +51,7 @@ class Knob:
         while 1:
             try:
                 since_last_press = self._twist.since_last_press(False)
-                if 0 < since_last_press < 100:
+                if 0 < since_last_press < 250:
                     self._click()
                 if self._twist.has_moved():
                     self._rotated()
