@@ -53,7 +53,7 @@ class Knob:
                 self._click()
             if self._twist.has_moved():
                 self._rotated()
-            time.sleep(0.01)
+            time.sleep(0.05)
 
     def _rotated(self):
         current = self._twist.count
