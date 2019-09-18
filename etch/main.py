@@ -7,11 +7,11 @@ from .sensors import Sensor
 GPIO.setmode(GPIO.BCM)
 
 try:
-    left = Knob(17, 6, 12, 0, 399,
+    left = Knob(0x4f, 399,
                 on_update=lambda v: print(f'LEFT {v}'),
                 on_press=lambda: print('LEFT PRESSED'),
                 on_release=lambda: print('LEFT RELEASED'))
-    right = Knob(16, 5, 13, 0, 299,
+    right = Knob(0x4e, 299,
                  on_update=lambda v: print(f'RIGHT {v}'),
                  on_press=lambda: print('RIGHT PRESSED'),
                  on_release=lambda: print('RIGHT RELEASED'))
