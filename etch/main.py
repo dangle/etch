@@ -1,10 +1,6 @@
-from RPi import GPIO
-
 from .knob import Knob
 from .sensors import Sensor
 
-
-GPIO.setmode(GPIO.BCM)
 
 try:
     left = Knob(0x4f, 399,
@@ -23,5 +19,3 @@ try:
             break
 except (KeyboardInterrupt, SystemExit):
     print('Exiting...')
-finally:
-    GPIO.cleanup()
