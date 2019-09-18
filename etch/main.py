@@ -4,13 +4,13 @@ from .sensors import Sensor
 
 try:
     left = Knob(0x4f, 399,
-                on_update=lambda v: print(f'LEFT {v}'),
-                on_press=lambda: print('LEFT PRESSED'),
-                on_release=lambda: print('LEFT RELEASED'))
+                on_update=lambda v: print(f'LEFT {v}', flush=True),
+                on_press=lambda: print('LEFT PRESSED', flush=True),
+                on_release=lambda: print('LEFT RELEASED', flush=True))
     right = Knob(0x4e, 299,
-                 on_update=lambda v: print(f'RIGHT {v}'),
-                 on_press=lambda: print('RIGHT PRESSED'),
-                 on_release=lambda: print('RIGHT RELEASED'))
+                 on_update=lambda v: print(f'RIGHT {v}', flush=True),
+                 on_press=lambda: print('RIGHT PRESSED', flush=True),
+                 on_release=lambda: print('RIGHT RELEASED', flush=True))
     #sensor = Sensor(on_shake=lambda: print('SHAKING'))
     print('Listening...')
     while 1:
