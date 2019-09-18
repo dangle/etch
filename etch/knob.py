@@ -35,11 +35,11 @@ class Knob:
 
     @property
     def is_pressed(self):
-        try:
-            return self._twist.is_pressed()
-        except OSError:
-            time.sleep(0.1)
-            return self._twist.is_pressed()
+        while 1:
+            try:
+                return self._twist.pressed
+            except OSError:
+                time.sleep(0.01)
 
     @property
     def is_long_pressed(self):
@@ -51,15 +51,19 @@ class Knob:
         return self._twist.count
 
     def _poll(self):
+        _is_pressed = self.is_pressed
         while 1:
             try:
-                since_last_press = self._twist.since_last_press(False)
-                if 0 < since_last_press < 250:
-                    self._click()
+                if _is_pressed and not self._twist.is_pressed:
+                    _is_pressed = False
+                    self._on_release()
+                elif not _is_pressed and self._twist.pressed:
+                    _is_pressed = True
+                    self._on_press()
                 if self._twist.has_moved():
                     self._rotated()
             except OSError:
-                time.sleep(0.2)
+                time.sleep(0.01)
 
     def _rotated(self):
         current = self._twist.count
@@ -73,9 +77,23 @@ class Knob:
             self._last_count = current
             self._on_update(current)
 
+    # def _click(self):
+    #     now = datetime.now()
+    #     if self._sw:
+    #         sw_data = GPIO.input(self._sw)
+    #         if sw_data == 0 and not self._is_pressed and (
+    #                 not self._last_released or
+    #                 self._last_released + timedelta(microseconds=30000) < now):
+    #             self._on_press()
+    #             self._is_pressed = True
+    #             self._last_pressed = now
+    #         elif sw_data != 0 and self._is_pressed:
+    #             self._on_release()
+    #             self._is_pressed = False
+    #             self._last_released = now
 
-    def _click(self):
-        if self.is_pressed:
-            self._on_press()
-        else:
-            self._on_release()
+    # def _click(self):
+    #     if self.is_pressed:
+    #         self._on_press()
+    #     else:
+    #         self._on_release()
