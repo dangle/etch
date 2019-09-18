@@ -22,7 +22,7 @@ class Knob:
                   on_update=NOT_SUPPLIED, on_press=NOT_SUPPLIED,
                   on_release=NOT_SUPPLIED):
         if max_ is not NOT_SUPPLIED:
-            pass # TODO
+            self._twist.set_limit(max_)
         if value is not NOT_SUPPLIED:
             self._twist.set_count(value)
             self._last_count = value
