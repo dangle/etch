@@ -41,7 +41,7 @@ class Knob:
     @property
     def is_long_pressed(self):
         return (self.is_pressed and
-                self._twist.since_last_pressed(False) > 3000)
+                self._twist.since_last_press(False) > 3000)
 
     @property
     def value(self):
@@ -49,7 +49,7 @@ class Knob:
 
     def _poll(self):
         while 1:
-            if self._twist.since_last_pressed(False) < 100:
+            if self._twist.since_last_press(False) < 100:
                 self._click()
             if self._twist.has_moved():
                 self._rotated()
