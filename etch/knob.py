@@ -18,11 +18,11 @@ class Knob:
         thread.daemon = True
         thread.start()
 
-    def configure(self, value=NOT_SUPPLIED, min_=NOT_SUPPLIED,
-                  max_=NOT_SUPPLIED, on_update=NOT_SUPPLIED,
-                  on_press=NOT_SUPPLIED, on_release=NOT_SUPPLIED):
+    def configure(self, value=NOT_SUPPLIED, max_=NOT_SUPPLIED,
+                  on_update=NOT_SUPPLIED, on_press=NOT_SUPPLIED,
+                  on_release=NOT_SUPPLIED):
         if max_ is not NOT_SUPPLIED:
-            self._twist.set_limit(_max)
+            self._twist.set_limit(max_)
         if value is not NOT_SUPPLIED:
             self._twist.set_count(value)
             self._last_count = value
@@ -56,10 +56,11 @@ class Knob:
 
     def _rotated(self):
         current = self._twist.count
-        if current == self._max and self._last_count == 0:
+        max_ = self._twist.limit
+        if current == max_ and self._last_count == 0:
             self._twist.set_count(0)
-        elif current == 0 and self._last_count == self._max:
-            self._twist.set_count(self._max)
+        elif current == 0 and self._last_count == max_:
+            self._twist.set_count(max_)
         else:
             self._last_count = current
             self._on_update(current)
