@@ -59,9 +59,9 @@ class Knob:
         current = self._twist.count
         max_ = self._twist.limit
         threadhold = max_ // 10
-        if current in range(max_ - threadhold, max_ + 1) and self._last_count == 0:
+        if current in range(max_ - threadhold, max_ + 1) and self._last_count in range(threadhold):
             self._twist.set_count(0)
-        elif current in range(threadhold) and self._last_count == max_:
+        elif current in range(threadhold) and self._last_count in range(max_ - threadhold, max_ + 1):
             self._twist.set_count(max_)
         else:
             self._last_count = current
