@@ -58,9 +58,9 @@ class Knob:
     def _rotated(self):
         current = self._twist.count
         max_ = self._twist.limit
-        if current == max_ and self._last_count == 0:
+        if current in range(max - 9, max + 1) and self._last_count == 0:
             self._twist.set_count(0)
-        elif current == 0 and self._last_count == max_:
+        elif current in range(10) and self._last_count == max_:
             self._twist.set_count(max_)
         else:
             self._last_count = current
