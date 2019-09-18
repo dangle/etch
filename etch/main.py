@@ -15,7 +15,7 @@ try:
                  on_update=lambda v: print(f'RIGHT {v}'),
                  on_press=lambda: print('RIGHT PRESSED'),
                  on_release=lambda: print('RIGHT RELEASED'))
-    sensor = Sensor(on_shake=lambda: print('SHAKING'))
+    #sensor = Sensor(on_shake=lambda: print('SHAKING'))
     print('Listening...')
     while 1:
         if left.is_long_pressed and right.is_long_pressed:
