@@ -1,4 +1,9 @@
-from typing import Tuple
+from typing import (
+    Any,
+    Tuple,
+)
+import asyncio
+import datetime
 
 from IT8951.constants import DisplayModes
 from PIL import ImageDraw
@@ -7,7 +12,7 @@ from .common import DO_NOTHING
 
 
 class Menu:
-    def __init__(self, etch, title: str, *options: Tuple[str], default=0) -> None:
+    def __init__(self, etch, title: str, *options: Tuple[str, Any], default=0) -> None:
         self._etch = etch
         self._title = title
         self._options = options
@@ -16,16 +21,36 @@ class Menu:
         self._width = etch.image.size[0]
         self._selected = default % len(options)
 
-    def select(self) -> int:
-        self._etch.set_display_mode(DisplayModes.GC16)
+    async def __call__(self, etch) -> None:
+        done = False
+        etch.set_display_mode(DisplayModes.GC16)
         self._draw_menu(True)
-        return 0
+
+        async def set_value(value):
+            self._selected = value
+            self._draw_menu()
+
+        def set_done():
+            nonlocal done
+            done = True
+
+        etch.left_knob.configure(
+            max_=len(self._options),
+            on_update=lambda v: asyncio.get_event_loop().create_task(set_value(v)),
+            on_press=set_done,
+            on_release=lambda: print("LEFT RELEASED", flush=True),
+        )
+
+        while not done:
+            await asyncio.sleep(1)
+
+        await self._options[self._selected][1](self._etch)
 
     def _draw_menu(self, full=False) -> None:
         self._etch.blank()
         self._draw_title()
         self._draw_options()
-        self._etch.refresh(full)
+        self._etch.refresh(full, wait=True)
 
     def _draw_title(self) -> None:
         self._x, _, self._width, h = self._etch.text(
@@ -53,7 +78,7 @@ class Menu:
 
     def _draw_options(self) -> None:
         draw = ImageDraw.Draw(self._etch.image)
-        for i, opt in enumerate(self._options):
+        for i, (opt, _) in enumerate(self._options):
             self._etch.text(
                 opt,
                 x=self._x + 40,

@@ -1,5 +1,6 @@
+import asyncio
+import functools
 import sys
-import threading
 import time
 
 import qwiic_twist
@@ -9,9 +10,16 @@ from .common import DO_NOTHING, NOT_SUPPLIED
 
 class Knob:
     def __init__(
-        self, addr, max_=None, default=0, on_update=None, on_press=None, on_release=None
+        self,
+        address,
+        max_=None,
+        default=0,
+        on_update=None,
+        on_press=None,
+        on_release=None,
     ):
-        self._twist = qwiic_twist.QwiicTwist(addr)
+        self._twist = qwiic_twist.QwiicTwist(address)
+        self._twist.set_int_timeout(0)
         self.configure(
             default,
             max_ or sys.maxsize,
@@ -19,9 +27,10 @@ class Knob:
             on_press or DO_NOTHING,
             on_release or DO_NOTHING,
         )
-        thread = threading.Thread(target=self._poll)
-        thread.daemon = True
-        thread.start()
+        loop = asyncio.get_event_loop()
+        rotate_task = loop.create_task(self._poll_encoder())
+        button_task = loop.create_task(self._poll_button())
+        # TODO: task.add_done_callback()
 
     def configure(
         self,
@@ -43,7 +52,6 @@ class Knob:
             self._on_press = on_press
         if on_release is not NOT_SUPPLIED:
             self._on_release = on_release
-        self._twist.set_int_timeout(10)
 
     @property
     def is_pressed(self):
@@ -64,7 +72,24 @@ class Knob:
     def set_color(self, red: int, blue: int, green: int) -> None:
         self._twist.set_color(red, green, blue)
 
-    def _poll(self):
+    async def _poll_encoder(self):
+        while 1:
+            try:
+                if (
+                    self._twist.has_moved()
+                ):  # FIXME: seems to trigger when register overflows
+                    current = self._twist.count
+                    diff = self._last_count - current
+                    step = 1 if diff > 0 else -1
+                    current
+                    self._last_count = current
+                    self._on_update(current)
+                    self._twist._i2c.writeWord(self._twist.address, 0x01, 0x00)
+            except OSError:
+                pass
+            await asyncio.sleep(0.05)
+
+    async def _poll_button(self):
         _is_pressed = self.is_pressed
         while 1:
             try:
@@ -74,32 +99,9 @@ class Knob:
                 elif not _is_pressed and self._twist.pressed:
                     _is_pressed = True
                     self._on_press()
-                if (
-                    self._twist.has_moved()
-                ):  # FIXME: seems to trigger when register overflows
-                    #                if self._twist.since_last_movement(False) < 150:
-                    #                    self._rotated()
-                    self._on_update(self._twist.count)
-                    self._twist._i2c.writeWord(self._twist.address, 0x01, 0)
             except OSError:
                 pass
-            time.sleep(0.1)
-
-    def _rotated(self):
-        current = self._twist.count
-        max_ = self._twist.limit
-        threadhold = max_ // 10
-        if current in range(max_ - threadhold, max_ + 1) and self._last_count in range(
-            threadhold
-        ):
-            self._twist.set_count(0)
-        elif current in range(threadhold) and self._last_count in range(
-            max_ - threadhold, max_ + 1
-        ):
-            self._twist.set_count(max_)
-        else:
-            self._last_count = current
-            self._on_update(current)
+            await asyncio.sleep(0.1)
 
     # def _click(self):
     #     now = datetime.now()

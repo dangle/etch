@@ -1,4 +1,5 @@
 from typing import (
+    Any,
     Optional,
     Tuple,
 )
@@ -6,6 +7,7 @@ import asyncio
 import logging
 import os
 import signal
+import threading
 
 from IT8951.display import AutoEPDDisplay
 from IT8951.constants import DisplayModes
@@ -36,8 +38,9 @@ class EtchASketch:
             loop.add_signal_handler(sig, signal_handler)
 
         self._display_mode = DisplayModes.GC16
-        self._left = Knob(0x3C)
-        self._right = Knob(0x3D)
+        self._display_lock = threading.Lock()
+        self._left = Knob(0x3C, max_=100)
+        self._right = Knob(0x3D, max_=100)
         self._sensor = Sensor(0x1D)
         self._display = AutoEPDDisplay(vcom=-1.61, track_gray=True)
         self.clear()
@@ -55,29 +58,36 @@ class EtchASketch:
         return self._sensor
 
     def clear(self) -> None:
-        self._display.clear()
+        with self._display_lock:
+            self._display.clear()
 
     def blank(self) -> None:
-        draw = ImageDraw.Draw(self.image)
-        draw.rectangle(
-            (
-                (0, 0),
-                self.image.size,
-            ),
-            fill=0xFF,
+        self._display.frame_buf.paste(
+            0xFF, box=(0, 0, self._display.width, self._display.height)
         )
 
     def set_display_mode(self, mode):
         self._display_mode = mode
 
-    def refresh(self, full: bool = False, mode: int = None) -> None:
-        if full:
-            self._display.draw_full(mode or self._display_mode)
+    def refresh(self, full: bool = False, wait=False, mode: int = None) -> None:
+        def redraw_screen() -> None:
+            with self._display_lock:
+                draw = self._display.draw_full if full else self._display.draw_partial
+                try:
+                    draw(mode or self._display_mode)
+                except TypeError:
+                    pass
+
+        if wait:
+            redraw_screen()
         else:
-            self._display.draw_partial(mode or self._display_mode)
+            threading.Thread(target=redraw_screen).start()
 
     def run(self, task):
-        self._loop.run_until_complete(task(self))
+        asyncio_task = self._loop.create_task(task(self))
+        # TODO: Task handler
+        # asyncio_task.add_done_callback()
+        self._loop.run_until_complete(asyncio_task)
 
     @property
     def image(self) -> Image:
@@ -122,6 +132,5 @@ class EtchASketch:
             size,
         )
 
-    def menu(self, title: str, *options: Tuple[str], default=0) -> int:
-        menu = Menu(self, title, *options, default=default)
-        return menu.select()
+    def menu(self, title: str, *options: Tuple[str, Any], default=0) -> int:
+        return self.run(Menu(self, title, *options, default=default))
