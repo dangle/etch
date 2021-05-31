@@ -1,1 +1,2 @@
-mpu6050-raspberrypi
+#mpu6050-raspberrypi
+sparkfun-qwiic

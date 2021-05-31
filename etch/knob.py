@@ -8,19 +8,30 @@ from .common import DO_NOTHING, NOT_SUPPLIED
 
 
 class Knob:
-
-    def __init__(self, addr, max_=None, default=0, on_update=None,
-                 on_press=None, on_release=None):
+    def __init__(
+        self, addr, max_=None, default=0, on_update=None, on_press=None, on_release=None
+    ):
         self._twist = qwiic_twist.QwiicTwist(addr)
-        self.configure(default, max_ or sys.maxint, on_update or DO_NOTHING,
-                       on_press or DO_NOTHING, on_release or DO_NOTHING)
+        self.configure(
+            default,
+            max_ or sys.maxsize,
+            on_update or DO_NOTHING,
+            on_press or DO_NOTHING,
+            on_release or DO_NOTHING,
+        )
         thread = threading.Thread(target=self._poll)
         thread.daemon = True
         thread.start()
 
-    def configure(self, value=NOT_SUPPLIED, max_=NOT_SUPPLIED,
-                  on_update=NOT_SUPPLIED, on_press=NOT_SUPPLIED,
-                  on_release=NOT_SUPPLIED):
+    def configure(
+        self,
+        value=NOT_SUPPLIED,
+        max_=NOT_SUPPLIED,
+        on_update=NOT_SUPPLIED,
+        on_press=NOT_SUPPLIED,
+        on_release=NOT_SUPPLIED,
+    ):
+        self._twist.begin()
         if max_ is not NOT_SUPPLIED:
             self._twist.set_limit(max_)
         if value is not NOT_SUPPLIED:
@@ -32,6 +43,7 @@ class Knob:
             self._on_press = on_press
         if on_release is not NOT_SUPPLIED:
             self._on_release = on_release
+        self._twist.set_int_timeout(10)
 
     @property
     def is_pressed(self):
@@ -43,12 +55,14 @@ class Knob:
 
     @property
     def is_long_pressed(self):
-        return (self.is_pressed and
-                self._twist.since_last_press(False) > 3000)
+        return self.is_pressed and self._twist.since_last_press(False) > 3000
 
     @property
     def value(self):
         return self._twist.count
+
+    def set_color(self, red: int, blue: int, green: int) -> None:
+        self._twist.set_color(red, green, blue)
 
     def _poll(self):
         _is_pressed = self.is_pressed
@@ -60,18 +74,28 @@ class Knob:
                 elif not _is_pressed and self._twist.pressed:
                     _is_pressed = True
                     self._on_press()
-                if self._twist.has_moved():
-                    self._rotated()
+                if (
+                    self._twist.has_moved()
+                ):  # FIXME: seems to trigger when register overflows
+                    #                if self._twist.since_last_movement(False) < 150:
+                    #                    self._rotated()
+                    self._on_update(self._twist.count)
+                    self._twist._i2c.writeWord(self._twist.address, 0x01, 0)
             except OSError:
-                time.sleep(0.01)
+                pass
+            time.sleep(0.1)
 
     def _rotated(self):
         current = self._twist.count
         max_ = self._twist.limit
         threadhold = max_ // 10
-        if current in range(max_ - threadhold, max_ + 1) and self._last_count in range(threadhold):
+        if current in range(max_ - threadhold, max_ + 1) and self._last_count in range(
+            threadhold
+        ):
             self._twist.set_count(0)
-        elif current in range(threadhold) and self._last_count in range(max_ - threadhold, max_ + 1):
+        elif current in range(threadhold) and self._last_count in range(
+            max_ - threadhold, max_ + 1
+        ):
             self._twist.set_count(max_)
         else:
             self._last_count = current

@@ -6,25 +6,24 @@ import time
 import threading
 
 from mpu6050 import mpu6050
-from RPi import GPIO
 
 from .common import DO_NOTHING, NOT_SUPPLIED
 
 
-Point = namedtuple('Point', 'x y z')
+Point = namedtuple("Point", "x y z")
 
 
 class Sensor:
-    _I2C_ADDRESS = 0x68
     _OFFSET_SAMPLES = 100
     _SHAKE_THRESHOLD = 10
     _SHAKE_DELAY = 5
 
-    def __init__(self, on_shake=None):
-        self._sensor = mpu6050(self._I2C_ADDRESS)
-        self._offset = mean(self._calc_accel(*self.accelerometer)
-                            for _ in range(self._OFFSET_SAMPLES))
-        self._setup_shaking()
+    def __init__(self, address, on_shake=None):
+        # self._sensor = mpu6050(self._I2C_ADDRESS)
+        # self._offset = mean(
+        #     self._calc_accel(*self.accelerometer) for _ in range(self._OFFSET_SAMPLES)
+        # )
+        # self._setup_shaking()
         self.configure(on_shake)
 
     def configure(self, on_shake=NOT_SUPPLIED):
@@ -45,8 +44,8 @@ class Sensor:
 
     @property
     def acceleration(self):
-        data = self.accelerometer
-        return abs(self._calc_accel(data.x, data.y, data.z) - self._offset)
+        x, y, z = self.accelerometer
+        return abs(self._calc_accel(x, y, z) - self._offset)
 
     def _calc_accel(self, *args):
         return abs(sqrt(sum(i ** 2 for i in args)))
@@ -61,9 +60,9 @@ class Sensor:
         while 1:
             now = datetime.now()
             if self.acceleration > self._SHAKE_THRESHOLD and (
-                    not self._last_shake or
-                    now > self._last_shake + timedelta(
-                        seconds=self._SHAKE_DELAY)):
+                not self._last_shake
+                or now > self._last_shake + timedelta(seconds=self._SHAKE_DELAY)
+            ):
                 self._last_shake = now
                 self._on_shake()
             else:
