@@ -21,8 +21,6 @@ from .sensors import Sensor
 
 
 class EtchASketch:
-    pass
-
     def __init__(self, on_double_long_press=DO_NOTHING) -> None:
         logging.basicConfig(
             level=os.environ.get("LOGLEVEL", "INFO").upper(),
@@ -83,11 +81,21 @@ class EtchASketch:
         else:
             threading.Thread(target=redraw_screen).start()
 
-    def run(self, task):
+    def queue(self, task):
         asyncio_task = self._loop.create_task(task(self))
         # TODO: Task handler
         # asyncio_task.add_done_callback()
-        self._loop.run_until_complete(asyncio_task)
+        return asyncio_task
+
+    def run(self, task):
+        asyncio_task = self.queue(task)
+        if not self._loop.is_running:
+            self._loop.run_until_complete(asyncio_task)
+
+    def start(self, task=None):
+        if task is not None:
+            self.queue(task)
+        self._loop.run_forever()
 
     @property
     def image(self) -> Image:
@@ -132,5 +140,5 @@ class EtchASketch:
             size,
         )
 
-    def menu(self, title: str, *options: Tuple[str, Any], default=0) -> int:
+    def display_menu(self, title: str, *options: Tuple[str, Any], default=0) -> None:
         return self.run(Menu(self, title, *options, default=default))

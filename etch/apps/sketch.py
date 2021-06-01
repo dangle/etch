@@ -1,3 +1,4 @@
+from etch.common import DO_NOTHING
 from random import randint
 import asyncio
 
@@ -60,11 +61,25 @@ class Sketch:
         self._etch.set_display_mode(DisplayModes.DU)
         self._etch.clear()
 
-        line = Line(etch)
-        while True:
-            line.update()
-            etch.refresh()
-            await asyncio.sleep(0.1)
+        with etch.left_knob.configuration(
+            on_update=lambda v: print(f"LEFT {v}", flush=True),
+            on_press=lambda: print("LEFT PRESSED", flush=True),
+            on_release=lambda: print("LEFT RELEASED", flush=True),
+        ):
+            line = Line(etch)
+            while True:
+                line.update()
+                etch.refresh()
+                if etch.right_knob.is_pressed:
+                    break
+                await asyncio.sleep(0.1)
+
+        etch.display_menu(
+            "Choose an Activity",
+            ("Sketch", sketch),
+            ("Pong", DO_NOTHING),
+            ("Tetris", DO_NOTHING),
+        )
 
 
 sketch = Sketch()

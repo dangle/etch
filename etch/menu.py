@@ -26,25 +26,25 @@ class Menu:
         etch.set_display_mode(DisplayModes.GC16)
         self._draw_menu(True)
 
-        async def set_value(value):
-            self._selected = value
+        def set_value(value):
+            self._selected = value % len(self._options)
             self._draw_menu()
 
         def set_done():
             nonlocal done
             done = True
 
-        etch.left_knob.configure(
+        with etch.left_knob.configuration(
+            value=self._selected,
             max_=len(self._options),
-            on_update=lambda v: asyncio.get_event_loop().create_task(set_value(v)),
+            on_update=lambda v: set_value(v),
             on_press=set_done,
             on_release=lambda: print("LEFT RELEASED", flush=True),
-        )
+        ):
+            while not done:
+                await asyncio.sleep(1)
 
-        while not done:
-            await asyncio.sleep(1)
-
-        await self._options[self._selected][1](self._etch)
+        self._etch.queue(self._options[self._selected][1])
 
     def _draw_menu(self, full=False) -> None:
         self._etch.blank()

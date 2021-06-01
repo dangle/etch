@@ -1,8 +1,8 @@
 import asyncio
-import functools
+import contextlib
 import sys
-import time
 
+import qwiic_i2c
 import qwiic_twist
 
 from .common import DO_NOTHING, NOT_SUPPLIED
@@ -18,8 +18,10 @@ class Knob:
         on_press=None,
         on_release=None,
     ):
+        self._address = address
         self._twist = qwiic_twist.QwiicTwist(address)
-        self._twist.set_int_timeout(0)
+        self._twist.set_int_timeout(50)
+        self._i2c = qwiic_i2c.getI2CDriver()
         self.configure(
             default,
             max_ or sys.maxsize,
@@ -27,6 +29,7 @@ class Knob:
             on_press or DO_NOTHING,
             on_release or DO_NOTHING,
         )
+        self._twist.clear_interrupts()
         loop = asyncio.get_event_loop()
         rotate_task = loop.create_task(self._poll_encoder())
         button_task = loop.create_task(self._poll_button())
@@ -40,7 +43,6 @@ class Knob:
         on_press=NOT_SUPPLIED,
         on_release=NOT_SUPPLIED,
     ):
-        self._twist.begin()
         if max_ is not NOT_SUPPLIED:
             self._twist.set_limit(max_)
         if value is not NOT_SUPPLIED:
@@ -53,13 +55,29 @@ class Knob:
         if on_release is not NOT_SUPPLIED:
             self._on_release = on_release
 
+    @contextlib.contextmanager
+    def configuration(self, **kwargs):
+        # TODO: Create a stack to push values
+        _push_value = self._twist.get_count()
+        _push_max = self._twist.get_limit()
+        _push_on_update = self._on_update
+        _push_on_press = self._on_press
+        _push_on_release = self._on_release
+        self.configure(**kwargs)
+        try:
+            yield self
+        finally:
+            self.configure(
+                _push_value,
+                _push_max,
+                _push_on_update,
+                _push_on_press,
+                _push_on_release,
+            )
+
     @property
     def is_pressed(self):
-        while 1:
-            try:
-                return self._twist.pressed
-            except OSError:
-                time.sleep(0.01)
+        return bool(self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS) & 0x02)
 
     @property
     def is_long_pressed(self):
@@ -84,23 +102,19 @@ class Knob:
                     current
                     self._last_count = current
                     self._on_update(current)
-                    self._twist._i2c.writeWord(self._twist.address, 0x01, 0x00)
             except OSError:
                 pass
             await asyncio.sleep(0.05)
 
     async def _poll_button(self):
-        _is_pressed = self.is_pressed
-        while 1:
-            try:
-                if _is_pressed and not self._twist.is_pressed:
-                    _is_pressed = False
-                    self._on_release()
-                elif not _is_pressed and self._twist.pressed:
-                    _is_pressed = True
-                    self._on_press()
-            except OSError:
-                pass
+        pressed = False
+        while True:
+            if not pressed and self.is_pressed:
+                pressed = True
+                self._on_press()
+            elif pressed and not self.is_pressed:
+                pressed = False
+                self._on_release()
             await asyncio.sleep(0.1)
 
     # def _click(self):
