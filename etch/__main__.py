@@ -30,7 +30,7 @@ if __name__ == "__main__":
     )
 
     try:
-        etch = EtchASketch(on_double_long_press=menu)
+        etch = EtchASketch()
         loop = asyncio.get_event_loop()
 
         def shutdown():

@@ -19,12 +19,12 @@ from .sensors import Sensor
 
 
 class EtchASketch:
-    def __init__(self, on_double_long_press=DO_NOTHING) -> None:
+    def __init__(self) -> None:
         self._loop = asyncio.get_event_loop()
         self._display_mode = DisplayModes.GC16
         self._display_lock = threading.Lock()
-        self._left = Knob(0x3C, max_=100)
-        self._right = Knob(0x3D, max_=100)
+        self._left = Knob(0x3C)
+        self._right = Knob(0x3D)
         self._sensor = Sensor(0x1D)
         self._display = AutoEPDDisplay(vcom=-1.61, track_gray=True)
         self.clear()

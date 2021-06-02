@@ -10,6 +10,7 @@ class BootSequence:
     async def __call__(self, etch) -> None:
         self._etch = etch
         self._display_logo()
+        self._display_instructions()
 
     def _display_logo(self):
         self._etch.set_display_mode(DisplayModes.A2)
@@ -17,6 +18,9 @@ class BootSequence:
         self._etch.text("- a -", font="Magic", size=200, y=600, update=False)
         self._etch.text("Sketch", font="Magic", size=200, y=800)
         time.sleep(5)
+
+    def _display_instructions(self):
+        pass
 
 
 boot_sequence = BootSequence()
