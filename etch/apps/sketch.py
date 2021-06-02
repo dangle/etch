@@ -25,6 +25,8 @@ class Sketch:
     def x(self, value):
         if value >= 0 and value < self._width:
             self._x = value
+        else:
+            self._etch.left_knob.value = self._x
         return self._x
 
     @property
@@ -35,6 +37,8 @@ class Sketch:
     def y(self, value):
         if value >= 3 and value < self._height - 1:
             self._y = value
+        else:
+            self._etch.right_knob.value = self._y
         return self._y
 
     def _place_pixel(self, x, y):
