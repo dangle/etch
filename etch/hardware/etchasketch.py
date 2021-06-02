@@ -5,6 +5,7 @@ from typing import (
 )
 import asyncio
 import os
+import queue
 import threading
 
 from IT8951.display import AutoEPDDisplay
@@ -18,16 +19,22 @@ from ..apps.system.menu import Menu
 
 
 class EtchASketch:
-    def __init__(self) -> None:
+    def __init__(
+        self, title: str, *options: Tuple[Tuple[str, Any], ...], default=0
+    ) -> None:
         self._loop = asyncio.get_event_loop()
         self._display_mode = DisplayModes.GC16
         self._display_lock = threading.Lock()
+        self._condition = asyncio.Condition()
+        self._queue = queue.LifoQueue()
         self._left = Knob(0x3C)
         self._right = Knob(0x3D)
         self._sensor = Sensor(0x1D)
         self._display = AutoEPDDisplay(vcom=-1.61, track_gray=True)
-        self._system_menu = None
-        self.clear()
+        self._options = tuple(opt[1] for opt in options)
+        self._system_menu = Menu(
+            self, title, *(opt[0] for opt in options), default=default
+        )
 
     @property
     def left_knob(self):
@@ -40,6 +47,10 @@ class EtchASketch:
     @property
     def sensor(self):
         return self._sensor
+
+    @property
+    def modes(self):
+        return DisplayModes
 
     def clear(self) -> None:
         with self._display_lock:
@@ -70,21 +81,24 @@ class EtchASketch:
             except:
                 pass
 
-    def queue(self, task):
-        asyncio_task = self._loop.create_task(task(self))
-        # TODO: Task handler
-        # asyncio_task.add_done_callback()
-        return asyncio_task
+    def push(self, task):
+        self._queue.put(task(self))
 
-    def run(self, task):
-        asyncio_task = self.queue(task)
-        if not self._loop.is_running:
-            self._loop.run_until_complete(asyncio_task)
+    def start(self):
+        async def system_menu(_):
+            selected = await self._system_menu(self)
+            self.push(self._options[selected])
 
-    def start(self, task=None):
-        if task is not None:
-            self.queue(task)
-        self._loop.run_forever()
+        async def runner():
+            while True:
+                try:
+                    next_task = self._queue.get_nowait()
+                    await next_task
+                    self._queue.task_done()
+                except queue.Empty:
+                    self.push(system_menu)
+
+        self._loop.run_until_complete(runner())
 
     @property
     def image(self) -> Image:
@@ -122,15 +136,18 @@ class EtchASketch:
 
         return draw_x, draw_y, text_width, text_height
 
+    async def menu(self, title: str, *options: Tuple[str, Any], default=0) -> None:
+        return await Menu(self, title, *options, default=default)(self)
+
+    async def __aenter__(self):
+        await self._condition.acquire()
+
+    async def __aexit__(self, *_):
+        self._condition.release()
+
     @staticmethod
     def _get_font(name: str, size: int) -> ImageFont:
         return ImageFont.truetype(
             os.path.join("home", "pi", "fonts", f"{name}.ttf"),
             size,
         )
-
-    def set_system_menu(self, title: str, *options: Tuple[str, Any], default=0):
-        self._system_menu = Menu(self, title, *options, default=default)
-
-    def display_menu(self, title: str, *options: Tuple[str, Any], default=0) -> None:
-        return self.run(Menu(self, title, *options, default=default))

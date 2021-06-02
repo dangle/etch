@@ -18,7 +18,14 @@ if __name__ == "__main__":
     )
 
     try:
-        etch = EtchASketch()
+        etch = EtchASketch(
+            "Choose an Activity",
+            ("Pong", Pong()),
+            ("Sketch", sketch),
+            ("Snake", Snake()),
+            ("Tetris", Tetris()),
+            default=1,
+        )
         loop = asyncio.get_event_loop()
 
         def shutdown():
@@ -28,16 +35,9 @@ if __name__ == "__main__":
         for sig in (signal.SIGINT, signal.SIGQUIT, signal.SIGTERM):
             loop.add_signal_handler(sig, shutdown)
 
-        etch.run(BootSequence())
-        etch.set_system_menu(
-            "Choose an Activity",
-            ("Pong", Pong()),
-            ("Sketch", sketch),
-            ("Snake", Snake()),
-            ("Tetris", Tetris()),
-            default=1,
-        )
-        etch.start(sketch)
+        etch.push(sketch)
+        etch.push(BootSequence())
+        etch.start()
     except (KeyboardInterrupt, SystemExit):
         try:
             shutdown()

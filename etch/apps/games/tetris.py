@@ -1,12 +1,5 @@
-from IT8951.constants import DisplayModes
+from ..app import App
 
 
-class Tetris:
-    def __init__(self) -> None:
-        self._etch = None
-
-    async def __call__(self, etch) -> None:
-        self._etch = etch
-        self._etch.set_display_mode(DisplayModes.DU)
-        self._etch.blank()
-        self._etch.refresh()
+class Tetris(App):
+    pass

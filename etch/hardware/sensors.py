@@ -5,8 +5,6 @@ from statistics import mean
 import time
 import threading
 
-from mpu6050 import mpu6050
-
 from ..common import DO_NOTHING, NOT_SUPPLIED
 
 

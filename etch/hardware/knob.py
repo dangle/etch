@@ -32,6 +32,7 @@ class Knob:
         self._twist.clear_interrupts()
         self._twist.set_color(0x00, 0x00, 0x00)
         self._twist.connect_color(0x00, 0x00, 0x00)
+        self._i2c.writeWord(address, qwiic_twist.TWIST_DIFFERENCE, 0x00)
         self._last_pressed = None
         self.configure(
             default,
@@ -128,19 +129,6 @@ class Knob:
                 return
             except OSError:
                 time.sleep(0.05)
-
-    @property
-    def is_long_pressed(self):
-        while 1:
-            try:
-                return (
-                    self._last_pressed is not None
-                    and self.is_pressed
-                    and datetime.datetime.now() - self._last_pressed
-                    > datetime.timedelta(seconds=2)
-                )
-            except OSError:
-                time.sleep(0.1)
 
     @property
     def value(self):
