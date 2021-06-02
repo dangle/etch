@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+
+from IT8951.display import AutoEPDDisplay
+
+AutoEPDDisplay(vcom=-1.61, track_gray=True).clear()

@@ -10,3 +10,6 @@ class Pong:
         self._etch.set_display_mode(DisplayModes.DU)
         self._etch.blank()
         self._etch.refresh()
+
+
+pong = Pong()

@@ -6,44 +6,39 @@ from IT8951.constants import DisplayModes
 from PIL import ImageDraw
 
 
-class Line:
-    def __init__(self, etch):
-        self._draw = ImageDraw.Draw(etch.image)
-        self._size = 12
-        self._x = 1872 / self._size / 2
-        self._y = 1404 / self._size / 2
-        self._direction = randint(0, 4)
+class Sketch:
+    SMALL = 3
 
-    def update(self):
-        if randint(0, 100) < 20:
-            self._direction = randint(0, 4)
+    def __init__(self) -> None:
+        self._etch = None
+        self._size = Sketch.SMALL
+        self._width = 1872 // self._size
+        self._height = 1404 // self._size
+        self._x = self._width // 2
+        self._y = self._height // 2
 
-        if self._direction == 0:
-            self._x += 1
-        elif self._direction == 1:
-            self._x -= 1
-        elif self._direction == 2:
-            self._y += 1
-        else:
-            self._y -= 1
+    @property
+    def x(self):
+        return self._x
 
-        if self._x < 0:
-            self._x = 0
-            self._direction = randint(0, 4)
-        elif self._x >= 1872 / self._size:
-            self._x = 1872 / self._size - self._size
-            self._direction = randint(0, 4)
-        elif self._y < 0:
-            self._y = 0
-            self._direction = randint(0, 4)
-        elif self._y >= 1404 / self._size:
-            self._y = 1404 / self._size - self._size
-            self._direction = randint(0, 4)
+    @x.setter
+    def x(self, value):
+        if value >= 0 and value < self._width:
+            self._x = value
+        return self._x
 
-        self._place_pixel(self._x, self._y)
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        if value >= 3 and value < self._height - 1:
+            self._y = value
+        return self._y
 
     def _place_pixel(self, x, y):
-        self._draw.rectangle(
+        ImageDraw.Draw(self._etch.image).rectangle(
             (
                 (self._size * x, self._size * y),
                 (self._size * x + self._size, self._size * y + self._size),
@@ -51,34 +46,48 @@ class Line:
             0x00,
         )
 
-
-class Sketch:
-    def __init__(self) -> None:
-        self._etch = None
-
     async def __call__(self, etch) -> None:
         self._etch = etch
-        self._etch.set_display_mode(DisplayModes.DU)
+        self._etch.set_display_mode(DisplayModes.A2)
         self._etch.clear()
 
+        def set_x(_, sign):
+            self.x += sign
+            self._place_pixel(self.x, self._height - self.y)
+
+        def set_y(_, sign):
+            self.y += sign
+            self._place_pixel(self.x, self._height - self.y)
+
         with etch.left_knob.configuration(
-            on_update=lambda v: print(f"LEFT {v}", flush=True),
-            on_press=lambda: print("LEFT PRESSED", flush=True),
-            on_release=lambda: print("LEFT RELEASED", flush=True),
+            value=self.x,
+            max_=self._width,
+            on_update=set_x,
+        ), etch.right_knob.configuration(
+            value=self.y,
+            max_=self._height,
+            on_update=set_y,
         ):
-            line = Line(etch)
+            count = 0
             while True:
-                line.update()
-                etch.refresh()
-                if etch.right_knob.is_pressed:
+                if etch.left_knob.is_long_pressed and etch.right_knob.is_long_pressed:
                     break
-                await asyncio.sleep(0.1)
+                if etch.left_knob.is_pressed and etch.right_knob.is_pressed:
+                    if not count:
+                        etch.blank()
+                    else:
+                        etch.clear()
+                    await asyncio.sleep(0.1)
+                    count = (count + 1) % 2
+                etch.refresh()
+                await asyncio.sleep(0.05)
 
         etch.display_menu(
             "Choose an Activity",
             ("Sketch", sketch),
             ("Pong", DO_NOTHING),
             ("Tetris", DO_NOTHING),
+            ("Snake", DO_NOTHING),
         )
 
 

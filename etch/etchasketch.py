@@ -79,7 +79,10 @@ class EtchASketch:
         if wait:
             redraw_screen()
         else:
-            threading.Thread(target=redraw_screen).start()
+            try:
+                threading.Thread(target=redraw_screen).start()
+            except:
+                pass
 
     def queue(self, task):
         asyncio_task = self._loop.create_task(task(self))

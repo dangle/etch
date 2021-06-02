@@ -1,7 +1,7 @@
 from IT8951.constants import DisplayModes
 
 
-class Tetris:
+class Snake:
     def __init__(self) -> None:
         self._etch = None
 
@@ -12,4 +12,4 @@ class Tetris:
         self._etch.refresh()
 
 
-tetris = Tetris()
+snake = Snake()

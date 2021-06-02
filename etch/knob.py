@@ -1,6 +1,8 @@
 import asyncio
 import contextlib
+import datetime
 import sys
+import time
 
 import qwiic_i2c
 import qwiic_twist
@@ -20,8 +22,10 @@ class Knob:
     ):
         self._address = address
         self._twist = qwiic_twist.QwiicTwist(address)
-        self._twist.set_int_timeout(50)
+        self._twist.set_int_timeout(0)
         self._i2c = qwiic_i2c.getI2CDriver()
+        self._twist.clear_interrupts()
+        self._last_pressed = None
         self.configure(
             default,
             max_ or sys.maxsize,
@@ -29,7 +33,6 @@ class Knob:
             on_press or DO_NOTHING,
             on_release or DO_NOTHING,
         )
-        self._twist.clear_interrupts()
         loop = asyncio.get_event_loop()
         rotate_task = loop.create_task(self._poll_encoder())
         button_task = loop.create_task(self._poll_button())
@@ -44,10 +47,19 @@ class Knob:
         on_release=NOT_SUPPLIED,
     ):
         if max_ is not NOT_SUPPLIED:
-            self._twist.set_limit(max_)
+            while 1:
+                try:
+                    self._twist.set_limit(max_)
+                    break
+                except OSError:
+                    time.sleep(0.05)
         if value is not NOT_SUPPLIED:
-            self._twist.set_count(value)
-            self._last_count = value
+            while 1:
+                try:
+                    self._twist.set_count(value)
+                    break
+                except OSError:
+                    time.sleep(0.05)
         if on_update is not NOT_SUPPLIED:
             self._on_update = on_update
         if on_press is not NOT_SUPPLIED:
@@ -77,46 +89,113 @@ class Knob:
 
     @property
     def is_pressed(self):
-        return bool(self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS) & 0x02)
+        while 1:
+            try:
+                return bool(
+                    self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS) & 0x02
+                )
+            except OSError:
+                time.sleep(0.05)
+
+    @property
+    def has_moved(self):
+        while 1:
+            try:
+                return bool(
+                    self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS) & 0x01
+                )
+            except OSError:
+                time.sleep(0.05)
+
+    def _clear_has_moved(self):
+        while 1:
+            try:
+                status = self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS)
+                self._i2c.writeByte(
+                    self._address, qwiic_twist.TWIST_STATUS, status & 0xFFFE
+                )
+                return
+            except OSError:
+                time.sleep(0.05)
 
     @property
     def is_long_pressed(self):
-        return self.is_pressed and self._twist.since_last_press(False) > 3000
+        while 1:
+            try:
+                return (
+                    self._last_pressed is not None
+                    and self.is_pressed
+                    and datetime.datetime.now() - self._last_pressed
+                    > datetime.timedelta(seconds=2)
+                )
+            except OSError:
+                time.sleep(0.1)
 
     @property
     def value(self):
         return self._twist.count
 
+    @value.setter
+    def value(self, val):
+        while 1:
+            try:
+                self._twist.set_count(val)
+                return
+            except OSError:
+                time.sleep(0.1)
+
     def set_color(self, red: int, blue: int, green: int) -> None:
-        self._twist.set_color(red, green, blue)
+        while 1:
+            try:
+                self._twist.set_color(red, green, blue)
+                return
+            except OSError:
+                time.sleep(0.1)
 
     async def _poll_encoder(self):
         while 1:
-            try:
-                if (
-                    self._twist.has_moved()
-                ):  # FIXME: seems to trigger when register overflows
-                    current = self._twist.count
-                    diff = self._last_count - current
-                    step = 1 if diff > 0 else -1
-                    current
-                    self._last_count = current
-                    self._on_update(current)
-            except OSError:
-                pass
+            if self.has_moved:
+                while 1:
+                    try:
+                        count = self.value
+                        limit = self._twist.get_limit()
+                        self._clear_has_moved()
+                        diff = self._twist.get_diff(True) - 0x8000
+                        break
+                    except OSError:
+                        await asyncio.sleep(0.01)
+                mask = diff >> 0x07F8 - 0x0001
+                absval = (diff + mask) ^ mask
+                sign = -(diff // absval)
+                val = -(absval - 0x8000)
+                try:
+                    for i in range(val):
+                        self._on_update((count + i * sign) % limit, sign)
+                except Exception:
+                    pass
             await asyncio.sleep(0.05)
 
     async def _poll_button(self):
         pressed = False
         while True:
-            if not pressed and self.is_pressed:
+            knob_pressed = self.is_pressed
+            if not pressed and knob_pressed:
                 pressed = True
-                self._on_press()
-            elif pressed and not self.is_pressed:
+                try:
+                    self._last_pressed = datetime.datetime.now()
+                    self._on_press()
+                except Exception:
+                    pass
+            elif pressed and not knob_pressed:
                 pressed = False
-                self._on_release()
+                try:
+                    self._last_pressed = None
+                    self._on_release()
+                except Exception:
+                    pass
             await asyncio.sleep(0.1)
 
+    # TODO
     # def _click(self):
     #     now = datetime.now()
     #     if self._sw:
@@ -131,9 +210,3 @@ class Knob:
     #             self._on_release()
     #             self._is_pressed = False
     #             self._last_released = now
-
-    # def _click(self):
-    #     if self.is_pressed:
-    #         self._on_press()
-    #     else:
-    #         self._on_release()

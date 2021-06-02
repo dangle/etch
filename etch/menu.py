@@ -25,10 +25,21 @@ class Menu:
         done = False
         etch.set_display_mode(DisplayModes.GC16)
         self._draw_menu(True)
+        last_set = datetime.datetime.now()
 
-        def set_value(value):
-            self._selected = value % len(self._options)
-            self._draw_menu()
+        def set_selected(sign):
+            nonlocal last_set
+            now = datetime.datetime.now()
+            if (
+                sign < 0
+                and self._selected > 0
+                or sign > 0
+                and self._selected < len(self._options) - 1
+            ):
+                if now - last_set > datetime.timedelta(milliseconds=250):
+                    last_set = now
+                    self._selected = (self._selected + sign) % len(self._options)
+                    self._draw_menu()
 
         def set_done():
             nonlocal done
@@ -37,9 +48,13 @@ class Menu:
         with etch.left_knob.configuration(
             value=self._selected,
             max_=len(self._options),
-            on_update=lambda v: set_value(v),
+            on_update=lambda _, s: set_selected(s),
             on_press=set_done,
-            on_release=lambda: print("LEFT RELEASED", flush=True),
+        ), etch.right_knob.configuration(
+            value=self._selected,
+            max_=len(self._options),
+            on_update=lambda _, s: set_selected(s),
+            on_press=set_done,
         ):
             while not done:
                 await asyncio.sleep(1)
