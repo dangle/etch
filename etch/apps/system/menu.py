@@ -8,8 +8,6 @@ import datetime
 from IT8951.constants import DisplayModes
 from PIL import ImageDraw
 
-from ...common import DO_NOTHING
-
 
 class Menu:
     def __init__(self, etch, title: str, *options: Tuple[str, Any], default=0) -> None:
@@ -45,12 +43,12 @@ class Menu:
             nonlocal done
             done = True
 
-        with etch.left_knob.configuration(
+        with etch.left_knob.config(
             value=self._selected,
             max_=len(self._options),
             on_update=lambda _, s: set_selected(s),
             on_press=set_done,
-        ), etch.right_knob.configuration(
+        ), etch.right_knob.config(
             value=self._selected,
             max_=len(self._options),
             on_update=lambda _, s: set_selected(s),
@@ -109,5 +107,5 @@ class Menu:
                     fill=0xD0,
                 )
                 if i == self._selected
-                else DO_NOTHING,
+                else lambda *x: None,
             )

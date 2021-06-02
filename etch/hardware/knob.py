@@ -75,7 +75,7 @@ class Knob:
             self._on_release = on_release
 
     @contextlib.contextmanager
-    def configuration(self, **kwargs):
+    def config(self, **kwargs):
         # TODO: Create a stack to push values
         _push_value = self._twist.get_count()
         _push_max = self._twist.get_limit()

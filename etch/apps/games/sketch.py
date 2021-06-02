@@ -63,15 +63,9 @@ class Sketch:
             self.y += sign
             self._place_pixel(self.x, self._height - self.y)
 
-        with etch.left_knob.configuration(
-            value=self.x,
-            max_=self._width,
-            on_update=set_x,
-        ), etch.right_knob.configuration(
-            value=self.y,
-            max_=self._height,
-            on_update=set_y,
-        ):
+        with etch.left_knob.config(
+            value=self.x, max_=self._width, on_update=set_x
+        ), etch.right_knob.config(value=self.y, max_=self._height, on_update=set_y):
             count = 0
             while True:
                 if etch.left_knob.is_long_pressed and etch.right_knob.is_long_pressed:
