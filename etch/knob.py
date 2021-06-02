@@ -11,6 +11,11 @@ from .common import DO_NOTHING, NOT_SUPPLIED
 
 
 class Knob:
+    _HAS_MOVED_MASK = 0x01
+    _IS_PRESSED_MASK = 0x02
+    _HALF_WORD = 0x8000
+    _WORD_SIZE = 16
+
     def __init__(
         self,
         address,
@@ -21,10 +26,12 @@ class Knob:
         on_release=None,
     ):
         self._address = address
-        self._twist = qwiic_twist.QwiicTwist(address)
-        self._twist.set_int_timeout(0)
         self._i2c = qwiic_i2c.getI2CDriver()
+        self._twist = qwiic_twist.QwiicTwist(address)
+        self._twist.set_int_timeout(0x00)
         self._twist.clear_interrupts()
+        self._twist.set_color(0x00, 0x00, 0x00)
+        self._twist.connect_color(0x00, 0x00, 0x00)
         self._last_pressed = None
         self.configure(
             default,
@@ -92,7 +99,8 @@ class Knob:
         while 1:
             try:
                 return bool(
-                    self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS) & 0x02
+                    self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS)
+                    & Knob._IS_PRESSED_MASK
                 )
             except OSError:
                 time.sleep(0.05)
@@ -102,7 +110,8 @@ class Knob:
         while 1:
             try:
                 return bool(
-                    self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS) & 0x01
+                    self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS)
+                    & Knob._HAS_MOVED_MASK
                 )
             except OSError:
                 time.sleep(0.05)
@@ -112,7 +121,9 @@ class Knob:
             try:
                 status = self._i2c.readByte(self._address, qwiic_twist.TWIST_STATUS)
                 self._i2c.writeByte(
-                    self._address, qwiic_twist.TWIST_STATUS, status & 0xFFFE
+                    self._address,
+                    qwiic_twist.TWIST_STATUS,
+                    status ^ Knob._HAS_MOVED_MASK,
                 )
                 return
             except OSError:
@@ -160,14 +171,14 @@ class Knob:
                         count = self.value
                         limit = self._twist.get_limit()
                         self._clear_has_moved()
-                        diff = self._twist.get_diff(True) - 0x8000
+                        diff = self._twist.get_diff(True) - Knob._HALF_WORD
                         break
                     except OSError:
                         await asyncio.sleep(0.01)
-                mask = diff >> 0x07F8 - 0x0001
-                absval = (diff + mask) ^ mask
+                mask = diff >> Knob._WORD_SIZE - 1
+                absval = diff + mask ^ mask
                 sign = -(diff // absval)
-                val = -(absval - 0x8000)
+                val = -(absval - Knob._HALF_WORD)
                 try:
                     for i in range(val):
                         self._on_update((count + i * sign) % limit, sign)
