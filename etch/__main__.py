@@ -1,21 +1,14 @@
-from etch.apps.snake import Snake
-from time import sleep
+import asyncio
+import logging
+import os
+import signal
 
-from IT8951.constants import DisplayModes
-
+from .apps.boot import boot_sequence
 from .apps.pong import pong
 from .apps.sketch import sketch
 from .apps.snake import snake
 from .apps.tetris import tetris
 from .etchasketch import EtchASketch
-
-
-async def display_title_screen(etch):
-    etch.set_display_mode(DisplayModes.A2)
-    etch.text("Etch", font="Magic", size=200, y=400, update=False)
-    etch.text("- a -", font="Magic", size=200, y=600, update=False)
-    etch.text("Sketch", font="Magic", size=200, y=800)
-    sleep(3)
 
 
 async def menu(etch):
@@ -30,9 +23,27 @@ async def menu(etch):
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(
+        level=os.environ.get("LOGLEVEL", "INFO").upper(),
+        format="[%(levelname)s] %(message)s",
+    )
+
     try:
         etch = EtchASketch(on_double_long_press=menu)
-        etch.run(display_title_screen)
+        loop = asyncio.get_event_loop()
+
+        def shutdown():
+            etch.clear()
+            loop.stop()
+
+        for sig in (signal.SIGINT, signal.SIGQUIT, signal.SIGTERM):
+            loop.add_signal_handler(sig, shutdown)
+
+        etch.run(boot_sequence)
         etch.start(sketch)
     except (KeyboardInterrupt, SystemExit):
-        print("Exiting...")
+        try:
+            shutdown()
+        except Exception as e:
+            logging.exception("An error occurred while shutting down.")

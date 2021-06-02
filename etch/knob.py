@@ -176,9 +176,9 @@ class Knob:
                     except OSError:
                         await asyncio.sleep(0.01)
                 mask = diff >> Knob._WORD_SIZE - 1
-                absval = diff + mask ^ mask
-                sign = -(diff // absval)
-                val = -(absval - Knob._HALF_WORD)
+                abs_diff = diff + mask ^ mask
+                sign = -(diff // abs_diff)
+                val = -(abs_diff - Knob._HALF_WORD)
                 try:
                     for i in range(val):
                         self._on_update((count + i * sign) % limit, sign)
@@ -192,32 +192,19 @@ class Knob:
             knob_pressed = self.is_pressed
             if not pressed and knob_pressed:
                 pressed = True
+                self._last_pressed = datetime.datetime.now()
                 try:
-                    self._last_pressed = datetime.datetime.now()
                     self._on_press()
                 except Exception:
                     pass
             elif pressed and not knob_pressed:
                 pressed = False
+                duration = datetime.datetime.now() - self._last_pressed
+                duration_ms = int(duration.total_seconds() * 1000)
                 try:
-                    self._last_pressed = None
-                    self._on_release()
+                    self._on_release(duration_ms)
                 except Exception:
                     pass
+                finally:
+                    self._last_pressed = None
             await asyncio.sleep(0.1)
-
-    # TODO
-    # def _click(self):
-    #     now = datetime.now()
-    #     if self._sw:
-    #         sw_data = GPIO.input(self._sw)
-    #         if sw_data == 0 and not self._is_pressed and (
-    #                 not self._last_released or
-    #                 self._last_released + timedelta(microseconds=30000) < now):
-    #             self._on_press()
-    #             self._is_pressed = True
-    #             self._last_pressed = now
-    #         elif sw_data != 0 and self._is_pressed:
-    #             self._on_release()
-    #             self._is_pressed = False
-    #             self._last_released = now

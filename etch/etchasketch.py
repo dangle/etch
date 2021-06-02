@@ -4,9 +4,7 @@ from typing import (
     Tuple,
 )
 import asyncio
-import logging
 import os
-import signal
 import threading
 
 from IT8951.display import AutoEPDDisplay
@@ -22,19 +20,7 @@ from .sensors import Sensor
 
 class EtchASketch:
     def __init__(self, on_double_long_press=DO_NOTHING) -> None:
-        logging.basicConfig(
-            level=os.environ.get("LOGLEVEL", "INFO").upper(),
-            format="[%(levelname)s] %(message)s",
-        )
-        loop = self._loop = asyncio.get_event_loop()
-
-        def signal_handler() -> None:
-            """Stop the service and cleanup devices on receiving a signal."""
-            loop.stop()
-
-        for sig in (signal.SIGINT, signal.SIGQUIT, signal.SIGTERM):
-            loop.add_signal_handler(sig, signal_handler)
-
+        self._loop = asyncio.get_event_loop()
         self._display_mode = DisplayModes.GC16
         self._display_lock = threading.Lock()
         self._left = Knob(0x3C, max_=100)
