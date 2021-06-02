@@ -1,9 +1,9 @@
-from etch.common import DO_NOTHING
-from random import randint
 import asyncio
 
 from IT8951.constants import DisplayModes
 from PIL import ImageDraw
+
+from ...common import DO_NOTHING
 
 
 class Sketch:

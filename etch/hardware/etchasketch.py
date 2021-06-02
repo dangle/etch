@@ -12,10 +12,9 @@ from IT8951.constants import DisplayModes
 from PIL import ImageDraw, ImageFont
 from PIL.Image import Image
 
-from .common import DO_NOTHING
 from .knob import Knob
-from .menu import Menu
 from .sensors import Sensor
+from ..apps.system.menu import Menu
 
 
 class EtchASketch:
@@ -27,6 +26,7 @@ class EtchASketch:
         self._right = Knob(0x3D)
         self._sensor = Sensor(0x1D)
         self._display = AutoEPDDisplay(vcom=-1.61, track_gray=True)
+        self._system_menu = None
         self.clear()
 
     @property
@@ -128,6 +128,9 @@ class EtchASketch:
             os.path.join("home", "pi", "fonts", f"{name}.ttf"),
             size,
         )
+
+    def set_system_menu(self, title: str, *options: Tuple[str, Any], default=0):
+        self._system_menu = Menu(self, title, *options, default=default)
 
     def display_menu(self, title: str, *options: Tuple[str, Any], default=0) -> None:
         return self.run(Menu(self, title, *options, default=default))

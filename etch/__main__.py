@@ -3,27 +3,15 @@ import logging
 import os
 import signal
 
-from .apps.boot import boot_sequence
-from .apps.pong import pong
-from .apps.sketch import sketch
-from .apps.snake import snake
-from .apps.tetris import tetris
-from .etchasketch import EtchASketch
-
-
-async def menu(etch):
-    etch.display_menu(
-        "Choose an Activity",
-        ("Pong", pong),
-        ("Sketch", sketch),
-        ("Snake", snake),
-        ("Tetris", tetris),
-        default=1,
-    )
+from .apps.games.pong import Pong
+from .apps.games.sketch import sketch
+from .apps.games.snake import Snake
+from .apps.games.tetris import Tetris
+from .apps.system.boot import BootSequence
+from .hardware.etchasketch import EtchASketch
 
 
 if __name__ == "__main__":
-
     logging.basicConfig(
         level=os.environ.get("LOGLEVEL", "INFO").upper(),
         format="[%(levelname)s] %(message)s",
@@ -40,7 +28,15 @@ if __name__ == "__main__":
         for sig in (signal.SIGINT, signal.SIGQUIT, signal.SIGTERM):
             loop.add_signal_handler(sig, shutdown)
 
-        etch.run(boot_sequence)
+        etch.run(BootSequence())
+        etch.set_system_menu(
+            "Choose an Activity",
+            ("Pong", Pong()),
+            ("Sketch", sketch),
+            ("Snake", Snake()),
+            ("Tetris", Tetris()),
+            default=1,
+        )
         etch.start(sketch)
     except (KeyboardInterrupt, SystemExit):
         try:

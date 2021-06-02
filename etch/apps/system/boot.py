@@ -21,6 +21,3 @@ class BootSequence:
 
     def _display_instructions(self):
         pass
-
-
-boot_sequence = BootSequence()

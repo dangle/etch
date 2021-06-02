@@ -7,7 +7,7 @@ import threading
 
 from mpu6050 import mpu6050
 
-from .common import DO_NOTHING, NOT_SUPPLIED
+from ..common import DO_NOTHING, NOT_SUPPLIED
 
 
 Point = namedtuple("Point", "x y z")

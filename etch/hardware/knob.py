@@ -7,7 +7,7 @@ import time
 import qwiic_i2c
 import qwiic_twist
 
-from .common import DO_NOTHING, NOT_SUPPLIED
+from ..common import DO_NOTHING, NOT_SUPPLIED
 
 
 class Knob:

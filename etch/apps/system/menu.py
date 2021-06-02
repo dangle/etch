@@ -8,7 +8,7 @@ import datetime
 from IT8951.constants import DisplayModes
 from PIL import ImageDraw
 
-from .common import DO_NOTHING
+from ...common import DO_NOTHING
 
 
 class Menu:
