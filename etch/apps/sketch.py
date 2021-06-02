@@ -84,10 +84,11 @@ class Sketch:
 
         etch.display_menu(
             "Choose an Activity",
-            ("Sketch", sketch),
             ("Pong", DO_NOTHING),
-            ("Tetris", DO_NOTHING),
+            ("Sketch", sketch),
             ("Snake", DO_NOTHING),
+            ("Tetris", DO_NOTHING),
+            default=1,
         )
 
 

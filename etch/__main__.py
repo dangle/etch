@@ -21,10 +21,11 @@ async def display_title_screen(etch):
 async def menu(etch):
     etch.display_menu(
         "Choose an Activity",
-        ("Sketch", sketch),
         ("Pong", pong),
-        ("Tetris", tetris),
+        ("Sketch", sketch),
         ("Snake", snake),
+        ("Tetris", tetris),
+        default=1,
     )
 
 
