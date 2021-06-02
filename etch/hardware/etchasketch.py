@@ -85,15 +85,31 @@ class EtchASketch:
         self._queue.put(task(self))
 
     def start(self):
+        active_task = None
+
+        async def listener():
+            while True:
+                if (
+                    active_task
+                    and self.left_knob.is_long_pressed
+                    and self.right_knob.is_long_pressed
+                ):
+                    active_task.cancel()
+                await asyncio.sleep(1)
+
         async def system_menu(_):
             selected = await self._system_menu(self)
             self.push(self._options[selected])
 
         async def runner():
+            nonlocal active_task
+            self._loop.create_task(listener())
+
             while True:
                 try:
                     next_task = self._queue.get_nowait()
-                    await next_task
+                    active_task = self._loop.create_task(next_task)
+                    await asyncio.wait([active_task])
                     self._queue.task_done()
                 except queue.Empty:
                     self.push(system_menu)

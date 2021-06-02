@@ -1,7 +1,5 @@
 import asyncio
 
-from IT8951.constants import DisplayModes
-
 from ..app import App
 
 
@@ -38,35 +36,33 @@ class Sketch(App):
             self.etch.right_knob.value = self._y
         return self._y
 
-    def _place_pixel(self, x, y):
+    async def start(self) -> None:
+        self.etch.set_display_mode(self.etch.modes.A2)
+        self._update()
+
+        with self.etch.left_knob.config(
+            value=self.x, max_=self._width
+        ), self.etch.right_knob.config(value=self.y, max_=self._height):
+            while True:
+                self.etch.refresh()
+                await asyncio.sleep(0.05)
+
+    def _update(self):
         self.draw.rectangle(
             (
-                (self._size * x, self._size * y),
-                (self._size * x + self._size, self._size * y + self._size),
+                (self._size * self.x, self._size * self.y),
+                (self._size * self.x + self._size, self._size * self.y + self._size),
             ),
             0x00,
         )
 
-    async def start(self) -> None:
-        self.etch.set_display_mode(DisplayModes.A2)
-        self._place_pixel(self.x, self._height - self.y)
+    def on_left_rotate(self, _, direction):
+        self.x += direction
+        self._update()
 
-        def set_x(_, sign):
-            self.x += sign
-            self._place_pixel(self.x, self._height - self.y)
-
-        def set_y(_, sign):
-            self.y += sign
-            self._place_pixel(self.x, self._height - self.y)
-
-        with self.etch.left_knob.config(
-            value=self.x, max_=self._width, on_update=set_x
-        ), self.etch.right_knob.config(
-            value=self.y, max_=self._height, on_update=set_y
-        ):
-            while True:
-                self.etch.refresh()
-                await asyncio.sleep(0.05)
+    def on_right_rotate(self, _, direction):
+        self.y += direction
+        self._update()
 
 
 sketch = Sketch()
