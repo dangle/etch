@@ -56,10 +56,12 @@ class EtchASketch:
         with self._display_lock:
             self._display.clear()
 
-    def blank(self) -> None:
+    def blank(self, update: bool = True) -> None:
         self._display.frame_buf.paste(
             0xFF, box=(0, 0, self._display.width, self._display.height)
         )
+        if self.update:
+            self.refresh()
 
     def set_display_mode(self, mode):
         self._display_mode = mode
@@ -86,38 +88,60 @@ class EtchASketch:
 
     def start(self):
         active_task = None
+        is_system_menu = False
 
         async def listener():
-            while True:
+            while 1:
                 if (
                     active_task
+                    and not is_system_menu
                     and self.left_knob.is_long_pressed
                     and self.right_knob.is_long_pressed
+                    and self.left_knob.pressed_duration.seconds < 3
+                    and self.right_knob.pressed_duration.seconds < 3
                 ):
+                    self.blink()
                     active_task.cancel()
                 await asyncio.sleep(1)
 
         async def system_menu(_):
-            selected = await self._system_menu(self)
+            nonlocal is_system_menu
+            is_system_menu = True
+            try:
+                selected = await self._system_menu(self)
+            finally:
+                is_system_menu = False
             self.push(self._options[selected])
 
         async def runner():
             nonlocal active_task
             self._loop.create_task(listener())
 
-            while True:
+            while 1:
                 try:
                     next_task = self._queue.get_nowait()
+                    while self.left_knob.is_pressed and self.right_knob.is_pressed:
+                        await asyncio.sleep(0.5)
                     active_task = self._loop.create_task(next_task)
                     await asyncio.wait([active_task])
                     self._queue.task_done()
                 except queue.Empty:
                     self.push(system_menu)
 
-        self._loop.run_until_complete(runner())
+        self._loop.create_task(runner())
+        self._loop.run_forever()
+
+    def blink(self):
+        async def blink_left():
+            await self.left_knob.blink()
+
+        async def blink_right():
+            await self.right_knob.blink()
+
+        asyncio.gather(blink_left(), blink_right())
 
     @property
-    def image(self) -> Image:
+    def frame_buffer(self) -> Image:
         return self._display.frame_buf
 
     def text(
@@ -126,16 +150,16 @@ class EtchASketch:
         x: Optional[int] = None,
         y: Optional[int] = None,
         font: str = "DejaVuSans",
-        size: int = 40,
+        size: int = 80,
         color: int = 0x00,
         update: bool = True,
         callback=None,
     ) -> Tuple[int, int]:
-        draw = ImageDraw.Draw(self.image)
+        draw = ImageDraw.Draw(self.frame_buffer)
 
         image_font = self._get_font(font, size)
 
-        width, height = self.image.size
+        width, height = self.frame_buffer.size
         text_width, _ = image_font.getsize(text)
         text_height = size
 

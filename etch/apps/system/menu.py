@@ -15,50 +15,26 @@ class Menu(App):
         self._options = options
         self._offset = 150
         self._x = 0
-        self._width = etch.image.size[0]
+        self._width = etch.frame_buffer.size[0]
         self._selected = default % len(options)
+        self._last_set = None
+        self._done = False
 
     async def start(self) -> Optional[App]:
-        done = False
+        self._done = False
+        self._last_set = datetime.datetime.now()
         self._draw_menu(True)
-        last_set = datetime.datetime.now()
-
-        def set_selected(sign: int) -> None:
-            nonlocal last_set
-            now = datetime.datetime.now()
-            if (
-                sign < 0
-                and self._selected > 0
-                or sign > 0
-                and self._selected < len(self._options) - 1
-            ):
-                if now - last_set > datetime.timedelta(milliseconds=250):
-                    last_set = now
-                    self._selected = (self._selected + sign) % len(self._options)
-                    self._draw_menu()
-
-        def set_done() -> None:
-            nonlocal done
-            done = True
 
         with self.etch.left_knob.config(
-            value=self._selected,
-            max_=len(self._options),
-            on_update=lambda _, s: set_selected(s),
-            on_press=set_done,
-        ), self.etch.right_knob.config(
-            value=self._selected,
-            max_=len(self._options),
-            on_update=lambda _, s: set_selected(s),
-            on_press=set_done,
-        ):
-            while not done:
+            value=self._selected, max_=len(self._options)
+        ), self.etch.right_knob.config(value=self._selected, max_=len(self._options)):
+            while not self._done:
                 await asyncio.sleep(1)
 
         return self._selected
 
     def _draw_menu(self, full: bool = False) -> None:
-        self.etch.blank()
+        self.etch.blank(update=False)
         self._draw_title()
         self._draw_options()
         self.etch.refresh(full, wait=True)
@@ -105,3 +81,19 @@ class Menu(App):
                 if i == self._selected
                 else lambda *_: None,
             )
+
+    def on_rotate(self, _, direction: int) -> None:
+        now = datetime.datetime.now()
+        if (
+            direction == self.LEFT
+            and self._selected > 0
+            or direction == self.RIGHT
+            and self._selected < len(self._options) - 1
+        ):
+            if now - self._last_set > datetime.timedelta(milliseconds=250):
+                self._last_set = now
+                self._selected = (self._selected + direction) % len(self._options)
+                self._draw_menu()
+
+    def on_click(self) -> None:
+        self._done = True

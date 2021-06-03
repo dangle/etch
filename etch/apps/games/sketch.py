@@ -4,6 +4,14 @@ from ..app import App
 
 
 class Sketch(App):
+
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self) -> None:
         super().__init__()
         self._size = 3
@@ -11,6 +19,34 @@ class Sketch(App):
         self._height = 1404 // self._size
         self._x = self._width // 2
         self._y = self._height // 2
+
+    async def start(self) -> None:
+        self.etch.set_display_mode(self.etch.modes.A2)
+        self.update()
+
+        with self.etch.left_knob.config(
+            value=self.x, max_=self._width
+        ), self.etch.right_knob.config(value=self.y, max_=self._height):
+            while True:
+                self.etch.refresh()
+                await asyncio.sleep(0.05)
+
+    def on_left_rotate(self, _, direction):
+        self.x += direction
+        self.update()
+
+    def on_right_rotate(self, _, direction):
+        self.y -= direction
+        self.update()
+
+    def update(self):
+        self.draw.rectangle(
+            (
+                (self._size * self.x, self._size * self.y),
+                (self._size * self.x + self._size, self._size * self.y + self._size),
+            ),
+            0x00,
+        )
 
     @property
     def x(self):
@@ -35,34 +71,3 @@ class Sketch(App):
         else:
             self.etch.right_knob.value = self._y
         return self._y
-
-    async def start(self) -> None:
-        self.etch.set_display_mode(self.etch.modes.A2)
-        self._update()
-
-        with self.etch.left_knob.config(
-            value=self.x, max_=self._width
-        ), self.etch.right_knob.config(value=self.y, max_=self._height):
-            while True:
-                self.etch.refresh()
-                await asyncio.sleep(0.05)
-
-    def _update(self):
-        self.draw.rectangle(
-            (
-                (self._size * self.x, self._size * self.y),
-                (self._size * self.x + self._size, self._size * self.y + self._size),
-            ),
-            0x00,
-        )
-
-    def on_left_rotate(self, _, direction):
-        self.x += direction
-        self._update()
-
-    def on_right_rotate(self, _, direction):
-        self.y += direction
-        self._update()
-
-
-sketch = Sketch()

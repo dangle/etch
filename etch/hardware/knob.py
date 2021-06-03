@@ -25,15 +25,13 @@ class Knob:
         on_press=None,
         on_release=None,
     ):
+        time.sleep(0.5)
+        self._last_pressed = None
         self._address = address
         self._i2c = qwiic_i2c.getI2CDriver()
         self._twist = qwiic_twist.QwiicTwist(address)
-        self._twist.set_int_timeout(0x00)
-        self._twist.clear_interrupts()
-        self._twist.set_color(0x00, 0x00, 0x00)
-        self._twist.connect_color(0x00, 0x00, 0x00)
-        self._i2c.writeWord(address, qwiic_twist.TWIST_DIFFERENCE, 0x00)
-        self._last_pressed = None
+        self.reset()
+
         self.configure(
             default,
             max_ or sys.maxsize,
@@ -41,10 +39,10 @@ class Knob:
             on_press or DO_NOTHING,
             on_release or DO_NOTHING,
         )
+
         loop = asyncio.get_event_loop()
-        rotate_task = loop.create_task(self._poll_encoder())
-        button_task = loop.create_task(self._poll_button())
-        # TODO: task.add_done_callback()
+        loop.create_task(self._poll_encoder())
+        loop.create_task(self._poll_button())
 
     def configure(
         self,
@@ -75,6 +73,13 @@ class Knob:
         if on_release is not NOT_SUPPLIED:
             self._on_release = on_release
 
+    def reset(self):
+        self._twist.set_int_timeout(0x00)
+        self._twist.clear_interrupts()
+        self._twist.set_color(0x00, 0x00, 0x00)
+        self._twist.connect_color(0x00, 0x00, 0x00)
+        self._i2c.writeWord(self._address, qwiic_twist.TWIST_DIFFERENCE, 0x00)
+
     @contextlib.contextmanager
     def config(self, **kwargs):
         # TODO: Create a stack to push values
@@ -94,6 +99,26 @@ class Knob:
                 _push_on_press,
                 _push_on_release,
             )
+
+    async def blink(
+        self,
+        red: int = 0xFF,
+        green: int = 0xFF,
+        blue: int = 0xFF,
+        duration: int = 500,
+    ):
+        old_red = self._red
+        old_green = self._green
+        old_blue = self._blue
+        try:
+            self.set_color(0x00, 0x00, 0x00)
+            await asyncio.sleep(duration / 1000 / 3)
+            self.set_color(red, green, blue)
+            await asyncio.sleep(duration / 1000 / 3)
+            self.set_color(0x00, 0x00, 0x00)
+            await asyncio.sleep(duration / 1000 / 3)
+        finally:
+            self.set_color(old_red, old_green, old_blue)
 
     @property
     def is_pressed(self):
@@ -144,6 +169,11 @@ class Knob:
                 time.sleep(0.1)
 
     @property
+    def pressed_duration(self):
+        if self._last_pressed:
+            return datetime.datetime.now() - self._last_pressed
+
+    @property
     def value(self):
         return self._twist.count
 
@@ -156,10 +186,25 @@ class Knob:
             except OSError:
                 time.sleep(0.1)
 
-    def set_color(self, red: int, blue: int, green: int) -> None:
+    def set_color(self, red: int, green: int, blue: int) -> None:
+        self._red = red
+        self._green = green
+        self._blue = blue
         while 1:
             try:
                 self._twist.set_color(red, green, blue)
+                return
+            except OSError:
+                time.sleep(0.1)
+
+    def set_connect_color(self, red: int, green: int, blue: int) -> None:
+        while 1:
+            try:
+                self._i2c.writeBlock(
+                    self._address,
+                    qwiic_twist.TWIST_CONNECT_RED,
+                    [red, 0x00, green, 0x00, blue, 0x00],
+                )
                 return
             except OSError:
                 time.sleep(0.1)
@@ -188,24 +233,22 @@ class Knob:
             await asyncio.sleep(0.05)
 
     async def _poll_button(self):
-        pressed = False
         while True:
             knob_pressed = self.is_pressed
-            if not pressed and knob_pressed:
-                pressed = True
+            if not self._last_pressed and knob_pressed:
                 self._last_pressed = datetime.datetime.now()
+                self.set_color(0xFF, 0xFF, 0xFF)
                 try:
                     self._on_press()
                 except Exception:
                     pass
-            elif pressed and not knob_pressed:
-                pressed = False
+            elif self._last_pressed and not knob_pressed:
                 duration = datetime.datetime.now() - self._last_pressed
                 duration_ms = int(duration.total_seconds() * 1000)
+                self._last_pressed = None
+                self.set_color(0x00, 0x00, 0x00)
                 try:
                     self._on_release(duration_ms)
                 except Exception:
                     pass
-                finally:
-                    self._last_pressed = None
             await asyncio.sleep(0.1)
