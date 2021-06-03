@@ -29,7 +29,7 @@ class EtchASketch:
         self._queue = queue.LifoQueue()
         self._left = Knob(0x3C)
         self._right = Knob(0x3D)
-        self._sensor = Sensor(0x1D)
+        self._sensor = Sensor(0x69)
         self._display = AutoEPDDisplay(vcom=-1.61, track_gray=True)
         self._options = tuple(opt[1] for opt in options)
         self._system_menu = Menu(
@@ -60,7 +60,7 @@ class EtchASketch:
         self._display.frame_buf.paste(
             0xFF, box=(0, 0, self._display.width, self._display.height)
         )
-        if self.update:
+        if update:
             self.refresh()
 
     def set_display_mode(self, mode):
@@ -121,7 +121,7 @@ class EtchASketch:
                 try:
                     next_task = self._queue.get_nowait()
                     while self.left_knob.is_pressed and self.right_knob.is_pressed:
-                        await asyncio.sleep(0.5)
+                        await asyncio.sleep(2)
                     active_task = self._loop.create_task(next_task)
                     await asyncio.wait([active_task])
                     self._queue.task_done()

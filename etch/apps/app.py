@@ -24,6 +24,8 @@ class App:
             ), etch.right_knob.config(
                 on_update=lambda v, d: self.on_right_rotate(v, d),
                 on_release=lambda _: self.on_right_click(),
+            ), etch.sensor.config(
+                on_shake=lambda a: self.on_shake(a),
             ):
                 return await self.start()
 
@@ -62,4 +64,7 @@ class App:
         self.on_click()
 
     def on_click(self):
+        pass
+
+    def on_shake(self, acceleration):
         pass

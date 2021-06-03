@@ -16,15 +16,7 @@ class Knob:
     _HALF_WORD = 0x8000
     _WORD_SIZE = 16
 
-    def __init__(
-        self,
-        address,
-        max_=None,
-        default=0,
-        on_update=None,
-        on_press=None,
-        on_release=None,
-    ):
+    def __init__(self, address):
         time.sleep(0.5)
         self._last_pressed = None
         self._address = address
@@ -32,13 +24,7 @@ class Knob:
         self._twist = qwiic_twist.QwiicTwist(address)
         self.reset()
 
-        self.configure(
-            default,
-            max_ or sys.maxsize,
-            on_update or DO_NOTHING,
-            on_press or DO_NOTHING,
-            on_release or DO_NOTHING,
-        )
+        self.configure(0, sys.maxsize, DO_NOTHING, DO_NOTHING, DO_NOTHING)
 
         loop = asyncio.get_event_loop()
         loop.create_task(self._poll_encoder())

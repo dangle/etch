@@ -17,4 +17,4 @@ class BootSequence(App):
         await asyncio.sleep(5)
 
     async def _display_instructions(self):
-        self.refresh()
+        self.etch.refresh()

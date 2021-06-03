@@ -39,6 +39,9 @@ class Sketch(App):
         self.y -= direction
         self.update()
 
+    def on_shake(self, acceleration):
+        self.etch.clear()
+
     def update(self):
         self.draw.rectangle(
             (
