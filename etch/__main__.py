@@ -8,7 +8,11 @@ from .apps.games.sketch import Sketch
 from .apps.games.snake import Snake
 from .apps.games.tetris import Tetris
 from .apps.games.ticktactoe import TicTacToe
+from .apps.info.compass import Compass
+from .apps.info.environment import Environment
+from .apps.info.map import Map
 from .apps.system.boot import BootSequence
+from .apps.system.camera import Camera
 from .hardware.etchasketch import EtchASketch
 
 
@@ -21,12 +25,16 @@ if __name__ == "__main__":
     try:
         etch = EtchASketch(
             "Choose an Activity",
+            ("Camera", Camera()),
+            ("Compass", Compass()),
+            ("Environment", Environment()),
+            ("Map", Map()),
             ("Pong", Pong()),
             ("Sketch", Sketch()),
             ("Snake", Snake()),
             ("Tetris", Tetris()),
             ("Tic-Tac-Toe", TicTacToe()),
-            default=1,
+            default=5,
         )
         loop = asyncio.get_event_loop()
 
